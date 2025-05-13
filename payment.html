@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Оплата через CloudPayments</title>
+  <script src="https://widget.cloudpayments.ru/bundles/cloudpayments"></script>
+</head>
+<body>
+<input class="btn" id="payButton" value="Оплатить" type="button">
+
+<script>
+  let btn = document.getElementById("payButton");
+  let language = "ru-RU";
+
+  function pay() {
+    var widget = new cp.CloudPayments({ language: language });
+    widget.pay('auth', // или 'charge'
+      { //options
+        publicId: 'pk_dbb7431f80a9ac46f07793ef02de8',
+        description: 'Оплата ужина Forkies.ru',
+        amount: 1000,
+        currency: 'RUB',
+        accountId: '6122396208',
+        invoiceId: 'daa480c9-cd62-4ee5-8bdf-c2866e7e990e',
+        skin: "mini",
+        autoClose: 3
+      }, {
+        onSuccess: function(options) {
+          alert("Оплата прошла успешно!");
+        },
+        onFail: function(reason, options) {
+          alert("Ошибка оплаты: " + JSON.stringify(reason));
+        },
+        onComplete: function(paymentResult, options) {
+          console.log("Завершение:", paymentResult);
+        }
+      }
+    );
+  }
+
+  btn.addEventListener('click', pay);
+</script>
+</body>
+</html>

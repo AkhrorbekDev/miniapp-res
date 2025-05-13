@@ -1,0 +1,138 @@
+.onboarding-screen {
+}
+
+.slide-indicators {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  padding: 12px;
+  align-items: flex-start;
+  gap: 4px;
+  z-index: 3;
+
+  &__item {
+    height: 2px;
+    border-radius: 4px;
+    background-color: var(--primary-color-light30, #FCF9EA);
+    width: 100%;
+    position: relative;
+
+    --indicator-width: 0%;
+
+
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--indicator-width);
+      height: 100%;
+      background: #ffffff;
+      border-radius: 4px;
+    }
+  }
+}
+
+.onboarding-screen__footer {
+  position: absolute;
+  bottom: 0;
+  padding: 24px 12px;
+  z-index: 3;
+  left: 0;
+  right: 0;
+}
+
+.slides {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+
+  &-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    gap: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+
+    &.active {
+      opacity: 1;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    &__img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+
+    &__content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-bottom: 32px;
+
+    }
+
+
+    &__title {
+      color: var(--primary-light, #FCF9EA);
+
+      /* H2 */
+      font-family: "Sofia Sans Extra Condensed";
+      font-size: 34px;
+      font-style: normal;
+      font-weight: 800;
+      line-height: 34px; /* 100% */
+      text-transform: uppercase;
+    }
+
+    &__description {
+      color: var(--primary-light, #FCF9EA);
+
+      /* Text Medium */
+      font-family: Manrope;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 22px; /* 137.5% */
+      letter-spacing: -0.6px;
+    }
+
+  }
+
+  &-item:nth-child(odd) {
+    .slides-item__content {
+      bottom: 82px;
+    }
+
+  }
+
+  &-item:nth-child(even) {
+    .slides-item__content {
+      top: 82px;
+      bottom: unset;
+    }
+  }
+}
