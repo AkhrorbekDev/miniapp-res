@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import { createUserService } from '@/services'
 
 const userPhoto = ref('')
+const emit = defineEmits(['update:modelValue'])
 const uploadPhoto = (e) => {
   const file = e.target.files[0]
   const formData = new FormData()
@@ -12,6 +13,7 @@ const uploadPhoto = (e) => {
       .changeAvatar(formData)
       .then((res) => {
         userPhoto.value = res.photo
+        emit('update:modelValue', res.photo)
       })
       .catch((err) => {
         console.error(err)
@@ -37,7 +39,7 @@ watch(
 <template>
   <div class="user-photo">
     <label for="file-input" class="file-input">
-      <img v-if="userPhoto" :src="userPhoto" alt="" />
+      <img v-if="userPhoto" :src="'https://miniapp.forkies.ru/' + userPhoto" alt="" />
       <template v-else>
         <svg
           width="61"

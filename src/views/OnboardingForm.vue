@@ -324,27 +324,27 @@ const questions = ref<Question[]>([
     showSubmitBtn: true,
     component: () => {
       const validation = function () {
-        const instagramRegex = /^(www\.)?instagram\.com\/([a-zA-Z0-9._]{1,30})\/?$/
-        const telegramRegex = /^(t(elegram)?\.me|telegram\.org)\/([a-zA-Z0-9_]{5,32})\/?$/
-        if (
-          formValues.value[FormKeys.instagram]?.length > 0 &&
-          !instagramRegex.test(formValues.value[FormKeys.instagram])
-        ) {
-          questions.value[6].valid = false
-
-          return
-        } else {
-          questions.value[6].valid = true
-        }
-        if (
-          formValues.value[FormKeys.telegram]?.length > 0 &&
-          !telegramRegex.test(formValues.value[FormKeys.telegram])
-        ) {
-          questions.value[6].valid = false
-          return
-        } else {
-          questions.value[6].valid = true
-        }
+        // const instagramRegex = /^(www\.)?instagram\.com\/([a-zA-Z0-9._]{1,30})\/?$/
+        // const telegramRegex = /^(t(elegram)?\.me|telegram\.org)\/([a-zA-Z0-9_]{5,32})\/?$/
+        // if (
+        //   formValues.value[FormKeys.instagram]?.length > 0 &&
+        //   !instagramRegex.test(formValues.value[FormKeys.instagram])
+        // ) {
+        //   questions.value[6].valid = false
+        //
+        //   return
+        // } else {
+        //   questions.value[6].valid = true
+        // }
+        // if (
+        //   formValues.value[FormKeys.telegram]?.length > 0 &&
+        //   !telegramRegex.test(formValues.value[FormKeys.telegram])
+        // ) {
+        //   questions.value[6].valid = false
+        //   return
+        // } else {
+        //   questions.value[6].valid = true
+        // }
         questions.value[6].valid = true
         return questions.value[6].valid
       }
@@ -468,7 +468,10 @@ const prevSlide = () => {
         [FormKeys.telegram]: formValues.value[FormKeys.telegram],
       })
     } else {
-      formValues.value[questions.value[activeSlide.value - 1].key] = ''
+      if (activeSlide.value - 1 !== 0) {
+        formValues.value[questions.value[activeSlide.value - 1].key] = null
+
+      }
       userService.updateUserDetails({
         [questions.value[activeSlide.value - 1].key]: formValues.value[questions.value[activeSlide.value - 1].key],
       })
@@ -497,8 +500,10 @@ const setValues = (data) => {
         value = ''
       }
     }
-    console.log(questions.value[i], value, i)
-
+    if (i === 0 && !data[questions.value[i + 1].key]) {
+      foudnPosition = true
+      activeSlide.value = i
+    }
     questions.value[i].valid = !!value
     if (questions.value[i].key === FormKeys.about_myself) {
       questions.value[i].valid = true

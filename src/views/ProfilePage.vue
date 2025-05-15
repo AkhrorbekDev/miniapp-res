@@ -62,7 +62,7 @@ onMounted(() => {
     <div class="profile-page__content">
       <div class="profile-page__content-header">
         <div class="user-avatar">
-          <img :src="user.photo || notProfile" alt="Avatar" />
+          <img :src="'https://miniapp.forkies.ru/' + user.photo || notProfile" alt="Avatar" />
         </div>
         <div class="user-name">
           <p>
