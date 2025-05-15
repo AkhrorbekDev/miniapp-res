@@ -333,6 +333,8 @@ const questions = ref<Question[]>([
             instagramRegex.test(formValues.value[FormKeys.instagram])
           )
         ) {
+          questions.value[6].valid = false
+
           return
         }
         if (
@@ -341,19 +343,21 @@ const questions = ref<Question[]>([
             telegramRegex.test(formValues.value[FormKeys.telegram])
           )
         ) {
+          questions.value[6].valid = false
           return
         }
-        return (questions.value[6].valid = true)
+        questions.value[6].valid = true
+        return questions.value[6].valid
       }
       validation()
       return h(SocialsStep, {
-        instagram: formValues.value[FormKeys.instagram],
-        telegramm: formValues.value[FormKeys.telegram],
+        [FormKeys.instagram]: formValues.value[FormKeys.instagram],
+        [FormKeys.telegram]: formValues.value[FormKeys.telegram],
         'onUpdate:instagram': (e) => {
           formValues.value[FormKeys.instagram] = e
           validation()
         },
-        'onUpdate:telegram': (e) => {
+        'onUpdate:telegramm': (e) => {
           formValues.value[FormKeys.telegram] = e
           validation()
         },
@@ -587,7 +591,11 @@ onMounted(() => {
       </template>
     </div>
     <template v-else>
-      <UserPreferences ref="pref" :model-value="formValues" @update:model-value="changePreferances" />
+      <UserPreferences
+        ref="pref"
+        :model-value="formValues"
+        @update:model-value="changePreferances"
+      />
     </template>
   </div>
 </template>

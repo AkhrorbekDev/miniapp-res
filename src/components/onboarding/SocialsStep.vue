@@ -8,7 +8,7 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  telegram: {
+  telegramm: {
     type: String,
     default: '',
   },
@@ -48,8 +48,8 @@ const props = defineProps({
       </BaseInput>
       <BaseInput
         placeholder="t.me/"
-        :model-value="telegram"
-        @update:model-value="$emit('update:telegram', $event)"
+        :model-value="telegramm"
+        @update:model-value="$emit('update:telegramm', $event)"
       >
         <template #icon-left>
           <svg
