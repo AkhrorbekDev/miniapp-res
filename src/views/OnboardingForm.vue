@@ -73,7 +73,7 @@ const changePreferances = (e) => {
 const questions = ref<Question[]>([
   {
     navbarTitle: 'Личность',
-    key: 'name',
+    key: [FormKeys.NAME],
     title: 'Расскажи о себе',
     submit: async function () {
       let result = false
@@ -320,31 +320,30 @@ const questions = ref<Question[]>([
       return Promise.resolve(questions.value[6].valid)
     },
 
-    valid: false,
+    valid: true,
     showSubmitBtn: true,
     component: () => {
       const validation = function () {
-        const instagramRegex = /^https?:\/\/(www\.)?instagram\.com\/([a-zA-Z0-9._]{1,30})\/?$/
-        const telegramRegex =
-          /^https?:\/\/(t(elegram)?\.me|telegram\.org)\/([a-zA-Z0-9_]{5,32})\/?$/
+        const instagramRegex = /^(www\.)?instagram\.com\/([a-zA-Z0-9._]{1,30})\/?$/
+        const telegramRegex = /^(t(elegram)?\.me|telegram\.org)\/([a-zA-Z0-9_]{5,32})\/?$/
         if (
-          !(
-            formValues.value[FormKeys.instagram]?.length > 0 &&
-            instagramRegex.test(formValues.value[FormKeys.instagram])
-          )
+          formValues.value[FormKeys.instagram]?.length > 0 &&
+          !instagramRegex.test(formValues.value[FormKeys.instagram])
         ) {
           questions.value[6].valid = false
 
           return
+        } else {
+          questions.value[6].valid = true
         }
         if (
-          !(
-            formValues.value[FormKeys.telegram]?.length > 0 &&
-            telegramRegex.test(formValues.value[FormKeys.telegram])
-          )
+          formValues.value[FormKeys.telegram]?.length > 0 &&
+          !telegramRegex.test(formValues.value[FormKeys.telegram])
         ) {
           questions.value[6].valid = false
           return
+        } else {
+          questions.value[6].valid = true
         }
         questions.value[6].valid = true
         return questions.value[6].valid
@@ -450,6 +449,10 @@ const prevSlide = () => {
     return
   }
   if (activeSlide.value > 0) {
+    userService
+      .updateUserDetails({
+        [questions.value[activeSlide.value].key]: null,
+      })
     activeSlide.value--
     changePosition(store.getPosition - 1)
   }
