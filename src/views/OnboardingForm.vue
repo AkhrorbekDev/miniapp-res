@@ -74,7 +74,7 @@ const questions = ref<Question[]>([
   {
     navbarTitle: 'Личность',
     key: [FormKeys.NAME],
-    title: 'Расскажи о себе',
+    title: 'твое Имя',
     submit: async function () {
       let result = false
       await userService
@@ -444,15 +444,36 @@ const prevSlide = () => {
     if (pref.value.onConfirmation()) {
       pref.value.onBack()
     } else {
+      formValues.value[FormKeys.food_restrictions] = []
+      formValues.value[FormKeys.event_language] = []
+      formValues.value[FormKeys.budget] = null
       showPreferences.value = false
+      formValues.value[questions.value[activeSlide.value].key] = ''
+      userService.updateUserDetails({
+        [FormKeys.food_restrictions]: formValues.value[FormKeys.food_restrictions],
+        [FormKeys.event_language]: formValues.value[FormKeys.event_language],
+        [FormKeys.budget]: formValues.value[FormKeys.budget],
+        [questions.value[activeSlide.value].key]: formValues.value[questions.value[activeSlide.value].key],
+      })
     }
     return
   }
   if (activeSlide.value > 0) {
-    userService
-      .updateUserDetails({
-        [questions.value[activeSlide.value].key]: null,
+
+    if (questions.value[activeSlide.value - 1].key === FormKeys.socials) {
+      formValues.value[FormKeys.instagram] = null
+      formValues.value[FormKeys.telegram] = null
+      userService.updateUserDetails({
+        [FormKeys.instagram]: formValues.value[FormKeys.instagram],
+        [FormKeys.telegram]: formValues.value[FormKeys.telegram],
       })
+    } else {
+      formValues.value[questions.value[activeSlide.value - 1].key] = ''
+      userService.updateUserDetails({
+        [questions.value[activeSlide.value - 1].key]: formValues.value[questions.value[activeSlide.value - 1].key],
+      })
+    }
+
     activeSlide.value--
     changePosition(store.getPosition - 1)
   }

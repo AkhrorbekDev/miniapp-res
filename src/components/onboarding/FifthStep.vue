@@ -7,6 +7,7 @@ const totalCircles = opinionsMaxValue - opinionsMinValue + 1
 
 const minSize = 26
 const maxSize = 54
+const startValue = 1
 
 const opinions = computed(() => {
   const half = Math.floor(totalCircles / 2)
@@ -16,7 +17,8 @@ const opinions = computed(() => {
     const value = opinionsMinValue + index
     const dist = Math.abs(value) // distance from center
     return {
-      value,
+      value: startValue + index,
+
       text: value.toString(),
       size: minSize + step * dist, // ⬅️ size increases with distance from 0
     }
