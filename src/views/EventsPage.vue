@@ -118,7 +118,20 @@ const pay = () => {
 }
 const confirmPayment = () => {
   if (offertaChecked.value) {
+
     const tgWebApp = window.Telegram.WebApp
+    if (prices.value.price - prices.value.promocodePrice === 0) {
+      showSuccessFrame.value = true
+      showPaymentForm.value = false
+      _promocodeValue.value = {
+        code: '',
+        bonus: 0,
+      }
+      getUserEvent().then(() => {
+        selectedEvent.value = null
+      })
+      return
+    }
     createUserService()
       .registerToEvent({
         event_id: selectedEvent.value,
@@ -685,7 +698,7 @@ onMounted(async () => {
               <span> Я принимаю  <a href="https://forkies.ru/offer">условия оферты</a> </span>
             </div>
             <button class="btn btn-primary" :disabled="!offertaChecked" @click="confirmPayment">
-              {{ paymentType === 'subscription' ? 'Подписаться' : 'Оплатить 1 встречу' }}
+              {{ paymentType === 'subscription' ? 'Оплатить' : 'Оплатить 1 встречу' }}
             </button>
           </div>
         </div>
