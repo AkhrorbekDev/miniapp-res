@@ -190,14 +190,18 @@ const checkPromocode = () => {
     .then((res) => {
       promocodeMessage.value = `Промокод ${promocode.value} активирован`
       formValues.value.promocode = promocode.value
-      _promocodeValue.value = res.data
+      _promocodeValue.value = res
       const timer = setTimeout(() => {
         promocodeMessage.value = ''
         clearTimeout(timer)
       }, 2000)
     })
     .catch((err) => {
-      promocodeMessage.value = err.data.message || 'Произошла ошибка'
+      promocodeMessage.value = err.data.detail || 'Произошла ошибка'
+      const timer = setTimeout(() => {
+        promocodeMessage.value = ''
+        clearTimeout(timer)
+      }, 2000)
     })
 }
 
@@ -245,8 +249,8 @@ const paymentAmount = computed(() => {
   if (!selectedEventData) {
     return 0
   }
-  return _promocodeValue.value.bonus
-    ? _promocodeValue.value.bonus
+  return _promocodeValue.value.promo_event_price
+    ? _promocodeValue.value.promo_event_price
     : selectedEventData.price
 })
 
@@ -254,7 +258,7 @@ const prices = computed(() => {
   const selectedEventData = events.value.find((event) => event.id === selectedEvent.value)
   return {
     price: selectedEventData?.price || 0,
-    promocodePrice: _promocodeValue.value.bonus,
+    promocodePrice: _promocodeValue.value.promo_event_price,
   }
 })
 
@@ -272,6 +276,20 @@ const eventStatus = computed(() => {
     return userEvent.value.is_paid
   }
   return false
+})
+
+const selectedEventLocation = computed(() => {
+  if (userEvent.value) {
+    const location = store.getDictionaries.cities.find((city) => city.id === userEvent.value.city)
+    return location.name
+  } else {
+    const selectedEventData = events.value.find((event) => event.id === selectedEvent.value)
+    if (selectedEventData) {
+      const location = store.getDictionaries.cities.find((city) => city.id === selectedEventData.city)
+      return location.name
+    }
+  }
+  return ''
 })
 
 const cancelReasons = ref([])
@@ -621,7 +639,7 @@ onMounted(async () => {
             <div class="payment-form__input">
               <div class="label">Локация</div>
               <div class="input-text">
-                {{ event.location }}
+                {{ selectedEventLocation }}
               </div>
             </div>
             <div class="payment-form__input">
@@ -638,7 +656,7 @@ onMounted(async () => {
           <div class="payment-form__total">
             <div class="input-text">Итого</div>
             <div class="input-text">
-              <span v-if="prices.promocodePrice">{{ prices.price }}</span
+              <span v-if="prices.promocodePrice">{{ prices.price }} ₽</span
               >{{ prices.promocodePrice ? prices.promocodePrice : prices.price }} ₽
             </div>
           </div>
@@ -1198,6 +1216,24 @@ onMounted(async () => {
     font-weight: 700;
     line-height: 22px; /* 137.5% */
     letter-spacing: -0.6px;
+
+    .input-text {
+      span {
+        color: var(--primary-dark, #291E1E);
+        text-align: right;
+        opacity: .4;
+
+        /* Text Bold */
+        font-family: Manrope;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 22px; /* 137.5% */
+        letter-spacing: -0.6px;
+        text-decoration-line: line-through;
+        margin-right: 8px;
+      }
+    }
   }
 
   &__input {
