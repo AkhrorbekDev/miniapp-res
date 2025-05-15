@@ -1441,57 +1441,5 @@ onMounted(async () => {
   }
 }
 
-.controls-modal {
-  padding: 12px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 
-  .controls-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 8px;
-    padding-bottom: 12px;
-
-    svg {
-      width: 60px;
-      height: 60px;
-    }
-
-    .modal-title {
-      color: var(--primary-dark, #291e1e);
-      text-align: center;
-
-      /* H2 */
-      font-family: 'Sofia Sans';
-      font-size: 34px;
-      font-style: normal;
-      font-weight: 800;
-      line-height: 34px; /* 100% */
-      text-transform: uppercase;
-    }
-
-    .modal-description {
-      color: var(--primary-dark, #291e1e);
-      text-align: center;
-
-      /* Text Medium */
-      font-family: Manrope;
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 22px; /* 137.5% */
-      letter-spacing: -0.6px;
-    }
-  }
-
-  &__footer {
-    padding: 12px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-}
 </style>

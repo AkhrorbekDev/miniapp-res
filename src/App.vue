@@ -12,10 +12,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { questionnaireService } from '@/services/publicServices.ts'
 import ProfilePage from '@/views/ProfilePage.vue'
 import MobileMenu from '@/components/MobileMenu.vue'
+import ProfileEdit from '@/views/ProfileEdit.vue'
+import ProfileEvents from '@/views/ProfileEvents.vue'
+import ProfileSettings from '@/views/ProfileSettings.vue'
+import ContactsPage from '@/views/ContactsPage.vue'
 
 const authorize = () => {}
 const userPosition = ref(0)
-const loading = ref(true)
+const loading = ref(false)
 const store = useOnboardingStore()
 const showFormPages = ref(false)
 const showOtherPages = ref(false)
@@ -37,32 +41,23 @@ watchEffect(() => {
   console.log('Route changed:', route.params.page)
 }, {})
 onMounted(async () => {
-  // const tgWebApp = window.Telegram.WebApp
-  // tgWebApp.expand()
+  const tgWebApp = window.Telegram.WebApp
+  tgWebApp.expand()
 
-  // if (!isAuthenticated()) {
-  // const initData = tgWebApp.initData
-  // const user = tgWebApp.initDataUnsafe.user
-  await obtainToken({
-    initData:
-      'user=%7B%22id%22%3A7734647288%2C%22first_name%22%3A%22Axrorbek%22%2C%22last_name%22%3A%22Nisonboyev%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2Ffzu2xrBJyYZxqW-fgY7723OUbiYG5jOidi0O_tkiZoviC_p6GYwXdw-vz1gn11qw.svg%22%7D&chat_instance=5440438497840504175&chat_type=sender&auth_date=1747029133&signature=GsNjhBiBA6nQtJyUb2jYG4YcIyre7zhGj904LdhfHeEP1mcvPIENpGDkcCn4DpZPShohJ8EK6EZ5IlsRsNHDDw&hash=a3a54e2a98c2de153b145572a067e1f815e2171cfb6bbdf1a3df3fde6ae069a5',
-    user: {
-      id: 7734647288,
-      first_name: 'Axrorbek',
-      last_name: 'Nisonboyev',
-      language_code: 'ru',
-      allows_write_to_pm: true,
-      photo_url:
-        'https://t.me/i/userpic/320/fzu2xrBJyYZxqW-fgY7723OUbiYG5jOidi0O_tkiZoviC_p6GYwXdw-vz1gn11qw.svg',
-    },
-  })
-    .then((response) => {
-      // tgWebApp.showAlert('Вы успешно авторизованы')
+  if (!isAuthenticated()) {
+    const initData = tgWebApp.initData
+    const user = tgWebApp.initDataUnsafe.user
+    await obtainToken({
+      initData,
+      user,
     })
-    .catch((error) => {
-      // tgWebApp.showAlert('Ошибка авторизации')
-    })
-  // }
+      .then((response) => {
+        // tgWebApp.showAlert('Вы успешно авторизованы')
+      })
+      .catch((error) => {
+        tgWebApp.showAlert('Ошибка авторизации')
+      })
+  }
 
   await Promise.all([
     createUserService()
@@ -80,8 +75,7 @@ onMounted(async () => {
       .getDictionaries()
       .then((response) => {
         store.setDictionaries(response)
-      })
-
+      }),
   ])
 
   if (userPosition.value === 0) {
@@ -121,10 +115,21 @@ onMounted(async () => {
     <template v-else>
       <div class="main-container without-padding">
         <EventsPage v-if="$route.params.page === 'events-page'" />
-        <ProfilePage v-if="$route.params.page === 'profile'" />
+        <ContactsPage v-if="$route.params.page === 'contacts-page'" />
+        <Transition name="page-drawer">
+          <ProfilePage v-if="$route.params.page === 'profile'" />
+        </Transition>
+        <Transition name="page-drawer">
+          <ProfileEdit v-if="$route.params.page2 === 'edit-profile'" />
+        </Transition>
+        <Transition name="page-drawer">
+          <ProfileSettings v-if="$route.params.page2 === 'profile-settings'" />
+        </Transition>
+        <Transition name="page-drawer">
+          <ProfileEvents v-if="$route.params.page2 === 'profile-events'" />
+        </Transition>
         <MobileMenu />
       </div>
-
     </template>
   </template>
 </template>
@@ -141,5 +146,94 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+// Transition animations
+.page-drawer-enter-active,
+.page-drawer-leave-active {
+  transition: transform 0.3s ease-out;
+}
+
+.page-drawer-enter-from,
+.page-drawer-leave-to {
+  transform: translateX(100%);
+}
+
+.page-drawer-enter-active .page-drawer-overlay,
+.page-drawer-leave-active .page-drawer-overlay {
+  transition: opacity 0.3s ease-out;
+}
+
+.page-drawer-enter-from .page-drawer-overlay,
+.page-drawer-leave-to .page-drawer-overlay {
+  opacity: 0;
+}
+</style>
+<style lang="scss">
+.controls-modal {
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .controls-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 12px;
+
+    svg {
+      width: 60px;
+      height: 60px;
+    }
+
+    .modal-title {
+      color: var(--primary-dark, #291e1e);
+      text-align: center;
+
+      /* H2 */
+      font-family: 'Sofia Sans';
+      font-size: 34px;
+      font-style: normal;
+      font-weight: 800;
+      line-height: 34px; /* 100% */
+      text-transform: uppercase;
+    }
+
+    .modal-description {
+      color: var(--primary-dark, #291e1e);
+      text-align: center;
+
+      /* Text Medium */
+      font-family: Manrope;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 22px; /* 137.5% */
+      letter-spacing: -0.6px;
+    }
+
+    .modal-description1 {
+      color: var(--primary-dark, #291e1e);
+      text-align: center;
+
+      /* Text Medium */
+      font-family: Manrope;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 22px; /* 137.5% */
+      letter-spacing: -0.6px;
+    }
+  }
+
+  &__footer {
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 </style>

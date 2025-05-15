@@ -33,6 +33,11 @@ export const useOnboardingStore = defineStore('onboarding', {
     },
     setIsOnboardingCompleted(isCompleted: boolean) {
       this.isOnboardingCompleted = isCompleted
+    },
+    deleteUser () {
+      this.userAnket = null
+      this.isOnboardingCompleted = false
+      this.position = 0
     }
   }
 })

@@ -16,7 +16,7 @@
       </svg>
       <p class="mobile-menu__link-text">Главная</p>
     </router-link>
-    <router-link to="/contacts" class="mobile-menu__link">
+    <router-link to="/contacts-page" class="mobile-menu__link">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
