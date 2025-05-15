@@ -3,7 +3,7 @@ import { api } from '@/services/api'
 
 const promocodeService = () => {
   return {
-    getPromocode: (query) => api('/promocode', {
+    getPromocode: (query) => api('events/promocode/', {
       method: 'POST',
       body: query
     })
