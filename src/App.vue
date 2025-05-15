@@ -52,7 +52,7 @@ onMounted(async () => {
       user,
     })
       .then((response) => {
-        // tgWebApp.showAlert('Вы успешно авторизованы')
+        tgWebApp.showAlert('Вы успешно авторизованы')
       })
       .catch((error) => {
         tgWebApp.showAlert('Ошибка авторизации')
