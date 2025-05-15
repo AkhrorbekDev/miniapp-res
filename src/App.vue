@@ -43,7 +43,6 @@ watchEffect(() => {
 onMounted(async () => {
   const tgWebApp = window.Telegram.WebApp
   tgWebApp.expand()
-
   if (!isAuthenticated()) {
     const initData = tgWebApp.initData
     const user = tgWebApp.initDataUnsafe.user

@@ -42,16 +42,8 @@ export const obtainToken = async (data: { initData: string; user: any }) => {
       body: data,
     })
     if (response && response.access) {
-      Cookies.set(AUTH_TOKEN_COOKIE, response.access, {
-        expires: TOKEN_EXPIRY,
-        secure: true,
-        sameSite: 'strict',
-      })
-      Cookies.set(REFRESH_TOKEN_COOKIE, response.refresh, {
-        expires: TOKEN_EXPIRY,
-        secure: true,
-        sameSite: 'strict',
-      })
+      sessionStorage.setItem(AUTH_TOKEN_COOKIE, response.access)
+      sessionStorage.setItem(REFRESH_TOKEN_COOKIE, response.refresh)
       return Promise.resolve(response)
     }
     return Promise.reject(new Error('Invalid response from server'))
@@ -66,7 +58,7 @@ export const obtainToken = async (data: { initData: string; user: any }) => {
  * @returns {Promise<boolean>} - Success status
  */
 export const refreshTokens = async () => {
-  const refreshToken = Cookies.get(REFRESH_TOKEN_COOKIE)
+  const refreshToken = sessionStorage.getItem(REFRESH_TOKEN_COOKIE)
   if (!refreshToken) return false
 
   try {
@@ -77,17 +69,9 @@ export const refreshTokens = async () => {
     })
 
     if (response && response.auth_token) {
-      Cookies.set(AUTH_TOKEN_COOKIE, response.auth_token, {
-        expires: TOKEN_EXPIRY,
-        secure: true,
-        sameSite: 'strict',
-      })
+      sessionStorage.setItem(AUTH_TOKEN_COOKIE, response.auth_token)
       if (response.refresh_token) {
-        Cookies.set(REFRESH_TOKEN_COOKIE, response.refresh_token, {
-          expires: TOKEN_EXPIRY,
-          secure: true,
-          sameSite: 'strict',
-        })
+        sessionStorage.setItem(REFRESH_TOKEN_COOKIE, response.refresh_token)
       }
       return true
     }
@@ -103,7 +87,7 @@ export const refreshTokens = async () => {
  * @returns {string|null} - The auth token or null if not found
  */
 export const getAuthToken = () => {
-  return Cookies.get(AUTH_TOKEN_COOKIE)
+  return sessionStorage.getItem(AUTH_TOKEN_COOKIE)
 }
 
 /**
@@ -111,15 +95,15 @@ export const getAuthToken = () => {
  * @returns {string|null} - The refresh token or null if not found
  */
 export const getRefreshToken = () => {
-  return Cookies.get(REFRESH_TOKEN_COOKIE)
+  return sessionStorage.getItem(REFRESH_TOKEN_COOKIE)
 }
 
 /**
  * Clear all tokens from cookies
  */
 export const clearTokens = () => {
-  Cookies.remove(AUTH_TOKEN_COOKIE)
-  Cookies.remove(REFRESH_TOKEN_COOKIE)
+  sessionStorage.removeItem(AUTH_TOKEN_COOKIE)
+  sessionStorage.removeItem(REFRESH_TOKEN_COOKIE)
 }
 
 export default {

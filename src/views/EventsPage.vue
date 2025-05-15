@@ -123,7 +123,7 @@ const confirmPayment = () => {
       .registerToEvent({
         event_id: selectedEvent.value,
       })
-      .then(() => {
+      .then((res) => {
         const language = 'ru-RU'
         const widget = new cp.CloudPayments({ language: language })
         widget.pay(
@@ -135,7 +135,7 @@ const confirmPayment = () => {
             amount: prices.value.promocodePrice ? prices.value.promocodePrice : prices.value.price,
             currency: 'RUB',
             accountId: '6122396208',
-            invoiceId: 'daa480c9-cd62-4ee5-8bdf-c2866e7e990e',
+            invoiceId: res.payment_id,
             skin: 'mini',
             autoClose: 3,
           },
