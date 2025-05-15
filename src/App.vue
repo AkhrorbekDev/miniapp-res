@@ -41,32 +41,23 @@ watchEffect(() => {
   console.log('Route changed:', route.params.page)
 }, {})
 onMounted(async () => {
-  // const tgWebApp = window.Telegram.WebApp
-  // tgWebApp.expand()
+  const tgWebApp = window.Telegram.WebApp
+  tgWebApp.expand()
 
-  // if (!isAuthenticated()) {
-  // const initData = tgWebApp.initData
-  // const user = tgWebApp.initDataUnsafe.user
-  await obtainToken({
-    initData:
-      'user=%7B%22id%22%3A7734647288%2C%22first_name%22%3A%22Axrorbek%22%2C%22last_name%22%3A%22Nisonboyev%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2Ffzu2xrBJyYZxqW-fgY7723OUbiYG5jOidi0O_tkiZoviC_p6GYwXdw-vz1gn11qw.svg%22%7D&chat_instance=5440438497840504175&chat_type=sender&auth_date=1747029133&signature=GsNjhBiBA6nQtJyUb2jYG4YcIyre7zhGj904LdhfHeEP1mcvPIENpGDkcCn4DpZPShohJ8EK6EZ5IlsRsNHDDw&hash=a3a54e2a98c2de153b145572a067e1f815e2171cfb6bbdf1a3df3fde6ae069a5',
-    user: {
-      id: 7734647288,
-      first_name: 'Axrorbek',
-      last_name: 'Nisonboyev',
-      language_code: 'ru',
-      allows_write_to_pm: true,
-      photo_url:
-        'https://t.me/i/userpic/320/fzu2xrBJyYZxqW-fgY7723OUbiYG5jOidi0O_tkiZoviC_p6GYwXdw-vz1gn11qw.svg',
-    },
-  })
-    .then((response) => {
-      // tgWebApp.showAlert('Вы успешно авторизованы')
+  if (!isAuthenticated()) {
+    const initData = tgWebApp.initData
+    const user = tgWebApp.initDataUnsafe.user
+    await obtainToken({
+      initData,
+      user,
     })
-    .catch((error) => {
-      // tgWebApp.showAlert('Ошибка авторизации')
-    })
-  // }
+      .then((response) => {
+        tgWebApp.showAlert('Вы успешно авторизованы')
+      })
+      .catch((error) => {
+        tgWebApp.showAlert('Ошибка авторизации')
+      })
+  }
 
   await Promise.all([
     createUserService()
