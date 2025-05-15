@@ -348,7 +348,7 @@ const questions = ref<Question[]>([
       validation()
       return h(SocialsStep, {
         instagram: formValues.value[FormKeys.instagram],
-        telegram: formValues.value[FormKeys.telegram],
+        telegramm: formValues.value[FormKeys.telegram],
         'onUpdate:instagram': (e) => {
           formValues.value[FormKeys.instagram] = e
           validation()
