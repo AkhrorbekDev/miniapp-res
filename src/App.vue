@@ -27,7 +27,7 @@ const showWelcomeScreen = ref(false)
 const router = useRouter()
 const route = useRoute()
 watchEffect(() => {
-  if (route.params.page === 'wellcome-screen') {
+  if (route.params.page === 'wellcome-screen' ||  route.params.page === 'onboarding-slides') {
     showWelcomeScreen.value = true
   } else if (route.params.page === 'onboarding-form') {
     showWelcomeScreen.value = false
