@@ -11,8 +11,23 @@ import paymentService from '@/services/paymentService.ts'
 import PaymentSuccessScreen from '@/views/PaymentSuccessScreen.vue'
 import { createUserService } from '@/services'
 import { useOnboardingStore } from '@/stores/onboarding.ts'
+import BaseDrawer from '@/components/base/BaseDrawer.vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+
+
+// import required modules
+import { Pagination, Navigation } from 'swiper/modules';
+// Import Swiper styles
+import 'swiper/css'
 
 const events = ref([])
+
+const swiperModules = [
+  Pagination,
+  Navigation,
+]
 
 const userEvent = ref(null)
 const userEventStats = ref({
@@ -79,6 +94,7 @@ const showSuccessModal = ref(false)
 const showConfirmModal = ref(false)
 const showEventCancel = ref(false)
 const showInfoModal = ref(false)
+const showGameDrawer = ref(false)
 const showDiscountModal = ref(false)
 const emergancyPromo = ref('')
 const showGameBottomSheet = ref(false)
@@ -116,7 +132,6 @@ const getUserEvent = () => {
         return Promise.resolve()
       })
       .catch((err) => {
-        console.log(err)
         const tgWebApp = window.Telegram.WebApp
         tgWebApp.showAlert('Ошибка получения ваших событий')
         return Promise.resolve()
@@ -247,7 +262,10 @@ const checkPromocode = () => {
     .then((res) => {
       promocodeMessage.value = `Промокод ${promocode.value} активирован`
       formValues.value.promocode = promocode.value
-      _promocodeValue.value = res
+      _promocodeValue.value = {
+        ...res,
+        code: promocode.value,
+      }
       const timer = setTimeout(() => {
         promocodeMessage.value = ''
         clearTimeout(timer)
@@ -255,6 +273,7 @@ const checkPromocode = () => {
     })
     .catch((err) => {
       promocodeMessage.value = err.data.detail || 'Произошла ошибка'
+
       const timer = setTimeout(() => {
         promocodeMessage.value = ''
         clearTimeout(timer)
@@ -424,6 +443,7 @@ const submitEmergencyReason = (value) => {
       .then((res) => {
         emergancyPromo.value = res.promo_code
         showDiscountModal.value = true
+        showInfoModal.value = false
 
         getUserEvent()
       })
@@ -590,9 +610,9 @@ onMounted(async () => {
           <button class="btn btn-primary" @click="showControls">Управлять бронью</button>
         </div>
         <div class="user-event__contents">
-          <div class="user-event__content">
+          <div v-if="userEventStats.restaurant" class="user-event__content">
             <div class="user-event__content-info">
-              <template v-if="userEventStats.restaurant.status">
+              <template v-if="userEventStats.restaurant?.status">
                 <div>
                   <p class="user-event__content-title" style="margin-bottom: 4px">
                     <span class="icon">
@@ -612,12 +632,12 @@ onMounted(async () => {
                     <span> Твой ресторан </span>
                   </p>
                   <p class="user-event__content-title">
-                    <span> «{{ userEventStats.restaurant.restaurant_name }}» </span>
+                    <span> «{{ userEventStats?.restaurant.restaurant_name }}» </span>
                   </p>
                 </div>
-                <p class="label">«{{ userEventStats.restaurant.table_name }}»</p>
+                <p class="label">«{{ userEventStats?.restaurant.table_name }}»</p>
                 <a
-                  :href="userEventStats.restaurant.restaurant_map_url"
+                  :href="userEventStats?.restaurant.restaurant_map_url"
                   target="_blank"
                   class="btn btn-outline-primary"
                 >
@@ -645,15 +665,15 @@ onMounted(async () => {
                 <div>
                   <p class="label" style="margin-bottom: 4px">Место твоего ужина будет известно:</p>
                   <p class="info">
-                    {{ userEventStats.restaurant.date_modif }}
+                    {{ userEventStats.restaurant?.date_modif }}
                   </p>
                 </div>
               </template>
             </div>
           </div>
-          <div class="user-event__content">
+          <div v-if="userEventStats.group" class="user-event__content">
             <div class="user-event__content-info">
-              <template v-if="userEventStats.group.status">
+              <template v-if="userEventStats?.group.status">
                 <p class="user-event__content-title" style="margin-bottom: 4px">
                   <span class="icon">
                     <svg
@@ -673,7 +693,7 @@ onMounted(async () => {
                 </p>
                 <div class="event-group__items">
                   <div
-                    v-for="item in userEventStats.group.photo_users"
+                    v-for="item in userEventStats?.group.photo_users"
                     :key="item.username"
                     class="event-group__item"
                   >
@@ -702,15 +722,15 @@ onMounted(async () => {
                 <div>
                   <p class="label" style="margin-bottom: 4px">Узнай больше о своей группе:</p>
                   <p class="info">
-                    {{ userEventStats.group.date_modif }}
+                    {{ userEventStats?.group.date_modif }}
                   </p>
                 </div>
               </template>
             </div>
           </div>
-          <div class="user-event__content">
+          <div v-if="userEventStats.game" class="user-event__content">
             <div class="user-event__content-info">
-              <template v-if="userEventStats.game.status">
+              <template v-if="userEventStats?.game.status">
                 <p class="user-event__content-title" style="margin-bottom: 4px">
                   <span class="icon">
                     <svg
@@ -751,15 +771,15 @@ onMounted(async () => {
                 <div>
                   <p class="label" style="margin-bottom: 4px">Разблокируй игру во время ужина</p>
                   <p class="info">
-                    {{ userEventStats.game.date_modif }}
+                    {{ userEventStats?.game.date_modif }}
                   </p>
                 </div>
               </template>
             </div>
           </div>
-          <div class="user-event__content">
+          <div v-if="userEventStats.bar" class="user-event__content">
             <div class="user-event__content-info">
-              <template v-if="userEventStats.bar.status">
+              <template v-if="userEventStats?.bar.status">
                 <div>
                   <p class="user-event__content-title" style="margin-bottom: 4px">
                     <span class="icon">
@@ -786,11 +806,11 @@ onMounted(async () => {
                     <span>Твой бар</span>
                   </p>
                   <p class="user-event__content-title">
-                    <span> «{{ userEventStats.bar.bar_name }}» </span>
+                    <span> «{{ userEventStats?.bar.bar_name }}» </span>
                   </p>
                 </div>
                 <a
-                  :href="userEventStats.bar.restaurant_map_url"
+                  :href="userEventStats?.bar.restaurant_map_url"
                   target="_blank"
                   class="btn btn-outline-primary"
                 >
@@ -825,7 +845,7 @@ onMounted(async () => {
                 <div>
                   <p class="label" style="margin-bottom: 4px">Название бара будет известно:</p>
                   <p class="info">
-                    {{ userEventStats.bar.date_modif }}
+                    {{ userEventStats?.bar.date_modif }}
                   </p>
                 </div>
               </template>
@@ -837,22 +857,22 @@ onMounted(async () => {
 
     <BaseBottomSheet :model-value="showPaymentForm" title="" @update:model-value="closePaymentForm">
       <div class="payment-form">
-        <div class="payment-form__header">
-          <button
-            :class="paymentType === 'subscription' ? 'btn-dark' : 'btn-outline-rounded'"
-            class="btn"
-            @click="paymentType = 'subscription'"
-          >
-            Подписка
-          </button>
-          <button
-            :class="paymentType === 'one' ? 'btn-dark' : 'btn-outline-rounded'"
-            class="btn"
-            @click="paymentType = 'one'"
-          >
-            1 встреча
-          </button>
-        </div>
+<!--        <div class="payment-form__header">-->
+<!--          <button-->
+<!--            :class="paymentType === 'subscription' ? 'btn-dark' : 'btn-outline-rounded'"-->
+<!--            class="btn"-->
+<!--            @click="paymentType = 'subscription'"-->
+<!--          >-->
+<!--            Подписка-->
+<!--          </button>-->
+<!--          <button-->
+<!--            :class="paymentType === 'one' ? 'btn-dark' : 'btn-outline-rounded'"-->
+<!--            class="btn"-->
+<!--            @click="paymentType = 'one'"-->
+<!--          >-->
+<!--            1 встреча-->
+<!--          </button>-->
+<!--        </div>-->
         <div v-if="event" class="payment-form__content">
           <div class="payment-form__inputs">
             <div class="payment-form__input">
@@ -966,16 +986,24 @@ onMounted(async () => {
     </BaseBottomSheet>
     <BaseBottomSheet title="" v-model="showGameBottomSheet">
       <div class="user-event__controls-btn">
-        <button @click="showChangeDate" class="btn btn-outline-primary">Познакомиться</button>
+        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
+          Познакомиться
+        </button>
       </div>
       <div class="user-event__controls-btn">
-        <button @click="cancelEvent" class="btn btn-outline-primary">Поделиться опытом</button>
+        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
+          Поделиться опытом
+        </button>
       </div>
       <div class="user-event__controls-btn">
-        <button @click="cancelEvent" class="btn btn-outline-primary">Узнать взгляды </button>
+        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
+          Узнать взгляды 
+        </button>
       </div>
       <div class="user-event__controls-btn">
-        <button @click="cancelEvent" class="btn btn-outline-primary">Мечтать вслух</button>
+        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
+          Мечтать вслух
+        </button>
       </div>
     </BaseBottomSheet>
     <BaseBottomSheet
@@ -1132,6 +1160,45 @@ onMounted(async () => {
       </template>
     </BaseBottomSheet>
 
+    <BaseDrawer
+      class="event-game-drawer"
+      v-model="showGameDrawer"
+      :show-footer="false"
+    >
+      <template #navbar>
+        <div class="event-game__navbar">
+          <button @click="showGameDrawer = false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z" fill="#FCF9EA"/>
+              <path d="M16.7364 7.2636C17.0879 7.61508 17.0879 8.18492 16.7364 8.5364L13.273 12L16.7364 15.4636C17.0586 15.7858 17.0854 16.2915 16.817 16.6442L16.7364 16.7364C16.3849 17.0879 15.8151 17.0879 15.4636 16.7364L12 13.273L8.5364 16.7364C8.18492 17.0879 7.61508 17.0879 7.2636 16.7364C6.91213 16.3849 6.91213 15.8151 7.2636 15.4636L10.727 12L7.2636 8.5364C6.94142 8.21421 6.91457 7.70853 7.18306 7.35577L7.2636 7.2636C7.61508 6.91213 8.18492 6.91213 8.5364 7.2636L12 10.727L15.4636 7.2636C15.8151 6.91213 16.3849 6.91213 16.7364 7.2636Z" fill="#E75010"/>
+            </svg>
+          </button>
+        </div>
+      </template>
+      <div class="event-game">
+        <swiper :modules="swiperModules" :navigation="true"  :pagination="{
+      type: 'fraction',
+    }" :slides-per-view="1" :space-between="50">
+          <swiper-slide>
+            <div class="event-game__item">
+              <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+            </div>
+          </swiper-slide>
+          <swiper-slide>
+            <div class="event-game__item">
+              <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+            </div>
+          </swiper-slide>
+          <swiper-slide>
+            <div class="event-game__item">
+              <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+            </div>
+          </swiper-slide>
+          ...
+        </swiper>
+      </div>
+    </BaseDrawer>
+
     <Teleport to="body">
       <Transition name="payment-success-frame">
         <PaymentSuccessScreen
@@ -1153,6 +1220,12 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  .event-game {
+    background: var(--primary-accent, #fcf9ea);
+    width: 100%;
+    height: 100%;
+  }
 
   .user-event {
     overflow: auto;
@@ -1720,6 +1793,86 @@ onMounted(async () => {
 </style>
 
 <style lang="scss">
+.event-game-drawer {
+  padding: 0 !important;
+  .swiper {
+    width: 100%;
+    height: 100%;
+
+    .swiper-pagination {
+      color: var(--primary-light, #FCF9EA);
+      text-align: center;
+
+      /* Text Medium */
+      font-family: Manrope;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 22px; /* 137.5% */
+      letter-spacing: -0.6px;
+      padding-bottom: 21px;
+
+
+    }
+    .swiper-button-prev:after {
+      content: url("/img/arrow_left.svg");
+      width: 24px;
+      height: 24px;
+    }
+    .swiper-button-next:after {
+      content: url("/img/arrow_right.svg");
+      width: 24px;
+      height: 24px;
+    }
+  }
+  .base-drawer__content {
+    padding: 0;
+    height: 100%;
+  }
+  .base-drawer__navbar {
+    position: absolute;
+    right: 4px;
+  }
+  .event-game__navbar {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    justify-content: space-between;
+    background: transparent;
+    z-index: 101;
+    button  {
+      background: transparent;
+      border: none;
+      width: 48px;
+      height: 44px;
+      padding: 10px 12px;
+      svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--primary-light, #FCF9EA);
+      }
+    }
+  }
+  .event-game__item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    p {
+      color: var(--primary-light, #FCF9EA);
+      text-align: center;
+
+      /* H3 */
+      font-family: Manrope;
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 28px; /* 116.667% */
+      letter-spacing: -0.6px;
+    }
+  }
+}
+
 .user-event__controls-btn {
   padding: 6px 0;
 
