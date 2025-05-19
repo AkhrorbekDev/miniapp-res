@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 import MobileMenu from '@/components/MobileMenu.vue'
 import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
 import { createUserService } from '@/services'
+import { clearTokens, obtainToken } from '@/services/tokenService.ts'
 
 const user = ref({})
 const store = useOnboardingStore()
@@ -18,10 +19,24 @@ const showDeleteModal = () => {
 const closeDeleteModal = () => {
   const tgWebApp = window.Telegram.WebApp
 
- createUserService().deleteUser().then(() => {
+ createUserService().deleteUser().then(async () => {
    _showDeleteModal.value = false
+   const tgWebApp = window.Telegram.WebApp
+
+   const initData = tgWebApp.initData
+   const user = tgWebApp.initDataUnsafe.user
+   clearTokens()
+   await obtainToken({
+     initData,
+     user
+   })
+     .then((response) => {
+       // tgWebApp.showAlert('Вы успешно авторизованы')
+     })
+     .catch((error) => {
+       tgWebApp.showAlert('Ошибка авторизации')
+     })
    store.deleteUser()
-   createUserService().changePosition(0)
     router.push({
       params: {
         page: 'wellcome-screen',

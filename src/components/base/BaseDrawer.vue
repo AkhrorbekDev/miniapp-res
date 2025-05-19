@@ -4,6 +4,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  showFooter: {
+    type: Boolean,
+    default: true,
+  },
+  showHeader: {
+    type: Boolean,
+    default: true,
+  },
   title: {
     type: String,
     default: 'Редактирование профиля',
@@ -20,7 +28,7 @@ const closeDrawer = () => {
 <template>
   <Transition name="page-drawer">
     <div v-if="modelValue" class="base-drawer">
-      <div class="base-drawer__navbar">
+      <div v-if="showHeader" class="base-drawer__navbar">
         <button @click="closeDrawer">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +70,7 @@ const closeDrawer = () => {
         <slot />
       </div>
 
-      <div class="base-drawer__footer">
+      <div v-if="showFooter" class="base-drawer__footer">
         <button class="btn btn-primary" @click="closeDrawer">Сохранить</button>
       </div>
     </div>

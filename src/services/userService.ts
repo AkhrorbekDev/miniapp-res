@@ -40,7 +40,7 @@ export const createUserService = () => {
       method: 'POST',
       body: data
     }),
-    deleteUser: () => api('/events/past/', {
+    deleteUser: () => api('/account/delete/', {
       method: 'DELETE'
     }),
     getUserEventStats: (eventId?: number) => api(`/events/status/`),
