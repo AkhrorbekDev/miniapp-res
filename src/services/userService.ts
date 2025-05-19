@@ -23,6 +23,7 @@ export const createUserService = () => {
         position: position
       }
     }),
+    getUserEventsStats: () => api('/events/past/'),
     changeAvatar: (data: any) => api('/questionnaire/', {
       method: 'PATCH',
       body: data
@@ -38,6 +39,10 @@ export const createUserService = () => {
     cancelEvent: (data: any) => api('/payments/refund/', {
       method: 'POST',
       body: data
-    })
+    }),
+    deleteUser: () => api('/events/past/', {
+      method: 'DELETE'
+    }),
+    getUserEventStats: (eventId?: number) => api(`/events/status/`),
   }
 }

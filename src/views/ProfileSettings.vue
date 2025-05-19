@@ -16,15 +16,21 @@ const showDeleteModal = () => {
 }
 
 const closeDeleteModal = () => {
-  _showDeleteModal.value = false
-  store.deleteUser()
-  createUserService().changePosition(0)
-  router.push({
-    params: {
-      page: 'wellcome-screen',
-      page2: '',
-    },
-  })
+  const tgWebApp = window.Telegram.WebApp
+
+ createUserService().deleteUser().then(() => {
+   _showDeleteModal.value = false
+   store.deleteUser()
+   createUserService().changePosition(0)
+    router.push({
+      params: {
+        page: 'wellcome-screen',
+        page2: '',
+      },
+    })
+  }).catch((err) => {
+    tgWebApp.showAlert('Ошибка удаления аккаунта')
+ })
 }
 
 const changePage = (e) => {
@@ -228,7 +234,7 @@ const changePage = (e) => {
         text-align: center;
 
         /* H2 */
-        font-family: 'Sofia Sans';
+        font-family: 'Sofia Sans Extra Condensed';
         font-size: 34px;
         font-style: normal;
         font-weight: 800;

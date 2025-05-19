@@ -15,7 +15,7 @@ const test = () => {
         <div class="logo">
           <img src="@/assets/img/logo.png" alt="" />
         </div>
-        <div class="home-page__content__title">твое место забронировано</div>
+        <p class="home-page__content__title">твое место забронировано</p>
       </div>
       <div class="home-page__footer">
         <div class="home-page__content__offert">
@@ -75,7 +75,7 @@ const test = () => {
     text-align: center;
 
     /* H1 */
-    font-family: 'Sofia Sans', var(--default-font-family);
+    font-family: 'Sofia Sans Extra Condensed', var(--default-font-family);
     font-size: 60px;
     font-style: normal;
     font-weight: 700;

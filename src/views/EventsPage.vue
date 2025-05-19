@@ -15,6 +15,28 @@ import { useOnboardingStore } from '@/stores/onboarding.ts'
 const events = ref([])
 
 const userEvent = ref(null)
+const userEventStats = ref({
+  restaurant: {
+    status: false,
+    date_modif: '-',
+    date: '2025-05-22T10:00:00Z',
+  },
+  group: {
+    status: false,
+    date_modif: '-',
+    date: '2025-05-22T15:45:00Z',
+  },
+  game: {
+    status: false,
+    date_modif: '-',
+    date: '2025-05-22T16:30:00Z',
+  },
+  bar: {
+    status: false,
+    date_modif: '-',
+    date: '2025-05-22T17:30:00Z',
+  },
+})
 const isoToDate = (isoString: string, type: string = 'long') => {
   const date = new Date(isoString)
   if (type === 'short') {
@@ -59,6 +81,7 @@ const showEventCancel = ref(false)
 const showInfoModal = ref(false)
 const showDiscountModal = ref(false)
 const emergancyPromo = ref('')
+const showGameBottomSheet = ref(false)
 const card = ref({
   pan: '',
   date: '',
@@ -72,23 +95,44 @@ const closePaymentForm = () => {
   promocode.value = ''
   paymentType.value = 'subscription'
 }
+
+const showGameModal = () => {
+  showGameBottomSheet.value = true
+}
 const getUserEvent = () => {
-  return createUserService()
-    .getUserEvents()
-    .then((res) => {
-      if (res[0]?.event_id) {
-        userEvent.value = res[0]
-        selectedDate.value = userEvent.value.event_id
-      } else {
-        userEvent.value = null
-      }
-      return Promise.resolve()
-    })
-    .catch(() => {
-      const tgWebApp = window.Telegram.WebApp
-      tgWebApp.showAlert('Ошибка получения ваших событий')
-      return Promise.resolve()
-    })
+  return Promise.all([
+    createUserService()
+      .getUserEvents()
+      .then((res) => {
+        if (res[0]?.event_id) {
+          userEvent.value = res[0]
+          selectedDate.value = userEvent.value.event_id
+          userEvent.value.locationName =
+            store.getDictionaries?.cities?.find((city) => city.id === userEvent.value.city)?.name ||
+            '-'
+        } else {
+          userEvent.value = null
+        }
+        return Promise.resolve()
+      })
+      .catch((err) => {
+        console.log(err)
+        const tgWebApp = window.Telegram.WebApp
+        tgWebApp.showAlert('Ошибка получения ваших событий')
+        return Promise.resolve()
+      }),
+    createUserService()
+      .getUserEventStats()
+      .then((res) => {
+        userEventStats.value = res
+        return Promise.resolve()
+      })
+      .catch(() => {
+        const tgWebApp = window.Telegram.WebApp
+        tgWebApp.showAlert('Ошибка получения ваших событий')
+        return Promise.resolve()
+      }),
+  ])
 }
 const pay = () => {
   showCardForm.value = false
@@ -118,25 +162,25 @@ const pay = () => {
 }
 const confirmPayment = () => {
   if (offertaChecked.value) {
-
     const tgWebApp = window.Telegram.WebApp
-    if (prices.value.price - prices.value.promocodePrice === 0) {
-      showSuccessFrame.value = true
-      showPaymentForm.value = false
-      _promocodeValue.value = {
-        code: '',
-        bonus: 0,
-      }
-      getUserEvent().then(() => {
-        selectedEvent.value = null
-      })
-      return
-    }
+
     createUserService()
       .registerToEvent({
         event_id: selectedEvent.value,
       })
       .then((res) => {
+        if (prices.value.price - prices.value.promocodePrice === 0 || res.event_price === 0) {
+          showSuccessFrame.value = true
+          showPaymentForm.value = false
+          _promocodeValue.value = {
+            code: '',
+            promo_event_price: 0,
+          }
+          getUserEvent().then(() => {
+            selectedEvent.value = null
+          })
+          return
+        }
         const language = 'ru-RU'
         const widget = new cp.CloudPayments({ language: language })
         widget.pay(
@@ -158,7 +202,7 @@ const confirmPayment = () => {
               showPaymentForm.value = false
               _promocodeValue.value = {
                 code: '',
-                bonus: 0,
+                promo_event_price: 0,
               }
               getUserEvent().then(() => {
                 selectedEvent.value = null
@@ -188,7 +232,7 @@ const formValues = ref({
 })
 const _promocodeValue = ref({
   code: '',
-  bonus: 0,
+  promo_event_price: 0,
 })
 const checkPromocode = () => {
   // Handle promocode logic here
@@ -225,21 +269,18 @@ const showBottomSheet = () => {
     showPaymentForm.value = true
   }
 }
-function isUnder24Hours(isoDateStr) {
-  const now = new Date();
-  const target = new Date(isoDateStr);
 
-  const diffInMs = target - now;
-  const diffInHours = diffInMs / (1000 * 60 * 60);
-  return diffInHours < 24;
+function isUnder24Hours(isoDateStr) {
+  const now = new Date()
+  const target = new Date(isoDateStr)
+
+  const diffInMs = target - now
+  const diffInHours = diffInMs / (1000 * 60 * 60)
+  return diffInHours < 24
 }
+
 const showControls = () => {
-  if (!isUnder24Hours(userEvent.value.event_date)) {
-    showInfoModal.value = true
-    showEventControls.value = false
-  } else {
-    showEventControls.value = true
-  }
+  showEventControls.value = true
 }
 
 const closeCardForm = () => {
@@ -298,7 +339,9 @@ const selectedEventLocation = computed(() => {
   } else {
     const selectedEventData = events.value.find((event) => event.id === selectedEvent.value)
     if (selectedEventData) {
-      const location = store.getDictionaries.cities.find((city) => city.id === selectedEventData.city)
+      const location = store.getDictionaries.cities.find(
+        (city) => city.id === selectedEventData.city,
+      )
       return location.name
     }
   }
@@ -313,8 +356,13 @@ const showChangeDate = () => {
 }
 
 const cancelEvent = () => {
-  showConfirmModal.value = true
-  showEventControls.value = false
+  if (!isUnder24Hours(userEvent.value.event_date)) {
+    showInfoModal.value = true
+    showEventControls.value = false
+  } else {
+    showConfirmModal.value = true
+    showEventControls.value = false
+  }
 }
 
 const closeInfoModal = () => {
@@ -534,89 +582,253 @@ onMounted(async () => {
             </div>
             <div class="user-event__item">
               <span class="label">Локация</span>
-              <span class="info">{{ userEvent.location }}</span>
+              <span class="info">{{ userEvent.locationName }}</span>
             </div>
           </div>
         </div>
         <div class="user-event__controls">
-          <button class="btn btn-primary" @click="showControls">
-            Управлять бронью
-          </button>
+          <button class="btn btn-primary" @click="showControls">Управлять бронью</button>
         </div>
         <div class="user-event__contents">
           <div class="user-event__content">
-            <p class="user-event__content-title">
-              <span class="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
+            <div class="user-event__content-info">
+              <template v-if="userEventStats.restaurant.status">
+                <div>
+                  <p class="user-event__content-title" style="margin-bottom: 4px">
+                    <span class="icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                      >
+                        <path
+                          d="M3.5 11V6.425C3.075 6.30833 2.71883 6.075 2.4315 5.725C2.14417 5.375 2.00033 4.96667 2 4.5V1H3V4.5H3.5V1H4.5V4.5H5V1H6V4.5C6 4.96667 5.85633 5.375 5.569 5.725C5.28167 6.075 4.92533 6.30833 4.5 6.425V11H3.5ZM8.5 11V7H7V3.5C7 2.80833 7.24383 2.21883 7.7315 1.7315C8.21917 1.24417 8.80867 1.00033 9.5 1V11H8.5Z"
+                          fill="#FCF9EA"
+                        />
+                      </svg>
+                    </span>
+                    <span> Твой ресторан </span>
+                  </p>
+                  <p class="user-event__content-title">
+                    <span> «{{ userEventStats.restaurant.restaurant_name }}» </span>
+                  </p>
+                </div>
+                <p class="label">«{{ userEventStats.restaurant.table_name }}»</p>
+                <a
+                  :href="userEventStats.restaurant.restaurant_map_url"
+                  target="_blank"
+                  class="btn btn-outline-primary"
                 >
-                  <path
-                    d="M3.5 11V6.425C3.075 6.30833 2.71883 6.075 2.4315 5.725C2.14417 5.375 2.00033 4.96667 2 4.5V1H3V4.5H3.5V1H4.5V4.5H5V1H6V4.5C6 4.96667 5.85633 5.375 5.569 5.725C5.28167 6.075 4.92533 6.30833 4.5 6.425V11H3.5ZM8.5 11V7H7V3.5C7 2.80833 7.24383 2.21883 7.7315 1.7315C8.21917 1.24417 8.80867 1.00033 9.5 1V11H8.5Z"
-                    fill="#FCF9EA"
-                  />
-                </svg>
-              </span>
-              <span> Твой ресторан </span>
-            </p>
-            <div>
-              <p class="label">Место твоего ужина будет известно:</p>
-              <p class="info">
-                {{ isoToDate(userEvent.event_date, 'long') }}
-              </p>
+                  Перейти в Яндекс Карты
+                </a>
+              </template>
+              <template v-else>
+                <p class="user-event__content-title">
+                  <span class="icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M3.5 11V6.425C3.075 6.30833 2.71883 6.075 2.4315 5.725C2.14417 5.375 2.00033 4.96667 2 4.5V1H3V4.5H3.5V1H4.5V4.5H5V1H6V4.5C6 4.96667 5.85633 5.375 5.569 5.725C5.28167 6.075 4.92533 6.30833 4.5 6.425V11H3.5ZM8.5 11V7H7V3.5C7 2.80833 7.24383 2.21883 7.7315 1.7315C8.21917 1.24417 8.80867 1.00033 9.5 1V11H8.5Z"
+                        fill="#FCF9EA"
+                      />
+                    </svg>
+                  </span>
+                  <span> Твой ресторан </span>
+                </p>
+                <div>
+                  <p class="label" style="margin-bottom: 4px">Место твоего ужина будет известно:</p>
+                  <p class="info">
+                    {{ userEventStats.restaurant.date_modif }}
+                  </p>
+                </div>
+              </template>
             </div>
           </div>
           <div class="user-event__content">
-            <p class="user-event__content-title">
-              <span class="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                >
-                  <path
-                    d="M3.5 11V6.425C3.075 6.30833 2.71883 6.075 2.4315 5.725C2.14417 5.375 2.00033 4.96667 2 4.5V1H3V4.5H3.5V1H4.5V4.5H5V1H6V4.5C6 4.96667 5.85633 5.375 5.569 5.725C5.28167 6.075 4.92533 6.30833 4.5 6.425V11H3.5ZM8.5 11V7H7V3.5C7 2.80833 7.24383 2.21883 7.7315 1.7315C8.21917 1.24417 8.80867 1.00033 9.5 1V11H8.5Z"
-                    fill="#FCF9EA"
-                  />
-                </svg>
-              </span>
-              <span> Твой ресторан </span>
-            </p>
-            <div>
-              <p class="label">Место твоего ужина будет известно:</p>
-              <p class="info">
-                {{ isoToDate(userEvent.event_date, 'long') }}
-              </p>
+            <div class="user-event__content-info">
+              <template v-if="userEventStats.group.status">
+                <p class="user-event__content-title" style="margin-bottom: 4px">
+                  <span class="icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M0.5 10V8.60001C0.5 8.31668 0.573 8.05635 0.719 7.81901C0.865 7.58168 1.05867 7.40035 1.3 7.27501C1.81667 7.01668 2.34167 6.82301 2.875 6.69401C3.40833 6.56501 3.95 6.50035 4.5 6.50001C5.05 6.49968 5.59167 6.56435 6.125 6.69401C6.65833 6.82368 7.18333 7.01735 7.7 7.27501C7.94167 7.40001 8.1355 7.58135 8.2815 7.81901C8.4275 8.05668 8.50033 8.31701 8.5 8.60001V10H0.5ZM9.5 10V8.50001C9.5 8.13335 9.398 7.78118 9.194 7.44351C8.99 7.10585 8.70033 6.81635 8.325 6.57501C8.75 6.62501 9.15 6.71051 9.525 6.83151C9.9 6.95251 10.25 7.10035 10.575 7.27501C10.875 7.44168 11.1042 7.62701 11.2625 7.83101C11.4208 8.03501 11.5 8.25801 11.5 8.50001V10H9.5ZM4.5 6.00001C3.95 6.00001 3.47917 5.80418 3.0875 5.41251C2.69583 5.02085 2.5 4.55001 2.5 4.00001C2.5 3.45001 2.69583 2.97918 3.0875 2.58751C3.47917 2.19585 3.95 2.00001 4.5 2.00001C5.05 2.00001 5.52083 2.19585 5.9125 2.58751C6.30417 2.97918 6.5 3.45001 6.5 4.00001C6.5 4.55001 6.30417 5.02085 5.9125 5.41251C5.52083 5.80418 5.05 6.00001 4.5 6.00001ZM9.5 4.00001C9.5 4.55001 9.30417 5.02085 8.9125 5.41251C8.52083 5.80418 8.05 6.00001 7.5 6.00001C7.40833 6.00001 7.29167 5.98968 7.15 5.96901C7.00833 5.94835 6.89167 5.92535 6.8 5.90001C7.025 5.63335 7.198 5.33751 7.319 5.01251C7.44 4.68751 7.50033 4.35001 7.5 4.00001C7.49967 3.65001 7.43933 3.31251 7.319 2.98751C7.19867 2.66251 7.02567 2.36668 6.8 2.10001C6.91667 2.05835 7.03333 2.03118 7.15 2.01851C7.26667 2.00585 7.38333 1.99968 7.5 2.00001C8.05 2.00001 8.52083 2.19585 8.9125 2.58751C9.30417 2.97918 9.5 3.45001 9.5 4.00001Z"
+                        fill="#FCF9EA"
+                      />
+                    </svg>
+                  </span>
+                  <span>Твоя группа</span>
+                </p>
+                <div class="event-group__items">
+                  <div
+                    v-for="item in userEventStats.group.photo_users"
+                    :key="item.username"
+                    class="event-group__item"
+                  >
+                    <img :src="'https://miniapp.forkies.ru/' + item.photo" alt="" />
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <p class="user-event__content-title">
+                  <span class="icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M0.5 10V8.60001C0.5 8.31668 0.573 8.05635 0.719 7.81901C0.865 7.58168 1.05867 7.40035 1.3 7.27501C1.81667 7.01668 2.34167 6.82301 2.875 6.69401C3.40833 6.56501 3.95 6.50035 4.5 6.50001C5.05 6.49968 5.59167 6.56435 6.125 6.69401C6.65833 6.82368 7.18333 7.01735 7.7 7.27501C7.94167 7.40001 8.1355 7.58135 8.2815 7.81901C8.4275 8.05668 8.50033 8.31701 8.5 8.60001V10H0.5ZM9.5 10V8.50001C9.5 8.13335 9.398 7.78118 9.194 7.44351C8.99 7.10585 8.70033 6.81635 8.325 6.57501C8.75 6.62501 9.15 6.71051 9.525 6.83151C9.9 6.95251 10.25 7.10035 10.575 7.27501C10.875 7.44168 11.1042 7.62701 11.2625 7.83101C11.4208 8.03501 11.5 8.25801 11.5 8.50001V10H9.5ZM4.5 6.00001C3.95 6.00001 3.47917 5.80418 3.0875 5.41251C2.69583 5.02085 2.5 4.55001 2.5 4.00001C2.5 3.45001 2.69583 2.97918 3.0875 2.58751C3.47917 2.19585 3.95 2.00001 4.5 2.00001C5.05 2.00001 5.52083 2.19585 5.9125 2.58751C6.30417 2.97918 6.5 3.45001 6.5 4.00001C6.5 4.55001 6.30417 5.02085 5.9125 5.41251C5.52083 5.80418 5.05 6.00001 4.5 6.00001ZM9.5 4.00001C9.5 4.55001 9.30417 5.02085 8.9125 5.41251C8.52083 5.80418 8.05 6.00001 7.5 6.00001C7.40833 6.00001 7.29167 5.98968 7.15 5.96901C7.00833 5.94835 6.89167 5.92535 6.8 5.90001C7.025 5.63335 7.198 5.33751 7.319 5.01251C7.44 4.68751 7.50033 4.35001 7.5 4.00001C7.49967 3.65001 7.43933 3.31251 7.319 2.98751C7.19867 2.66251 7.02567 2.36668 6.8 2.10001C6.91667 2.05835 7.03333 2.03118 7.15 2.01851C7.26667 2.00585 7.38333 1.99968 7.5 2.00001C8.05 2.00001 8.52083 2.19585 8.9125 2.58751C9.30417 2.97918 9.5 3.45001 9.5 4.00001Z"
+                        fill="#FCF9EA"
+                      />
+                    </svg>
+                  </span>
+                  <span>Твоя группа</span>
+                </p>
+                <div>
+                  <p class="label" style="margin-bottom: 4px">Узнай больше о своей группе:</p>
+                  <p class="info">
+                    {{ userEventStats.group.date_modif }}
+                  </p>
+                </div>
+              </template>
             </div>
           </div>
           <div class="user-event__content">
-            <p class="user-event__content-title">
-              <span class="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
+            <div class="user-event__content-info">
+              <template v-if="userEventStats.game.status">
+                <p class="user-event__content-title" style="margin-bottom: 4px">
+                  <span class="icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M9.1665 1C10.1465 1 10.9465 1.7685 10.9975 2.736L11 2.8335V9.1665C11 10.1465 10.2315 10.9465 9.264 10.9975L9.1665 11H2.8335C2.36409 11 1.91255 10.82 1.5719 10.497C1.23126 10.1741 1.02746 9.73275 1.0025 9.264L1 9.1665V2.8335C1 1.8535 1.7685 1.0535 2.736 1.0025L2.8335 1H9.1665ZM7.75 7C7.55109 7 7.36032 7.07902 7.21967 7.21967C7.07902 7.36032 7 7.55109 7 7.75C7 7.94891 7.07902 8.13968 7.21967 8.28033C7.36032 8.42098 7.55109 8.5 7.75 8.5C7.94891 8.5 8.13968 8.42098 8.28033 8.28033C8.42098 8.13968 8.5 7.94891 8.5 7.75C8.5 7.55109 8.42098 7.36032 8.28033 7.21967C8.13968 7.07902 7.94891 7 7.75 7ZM4.25 7C4.05109 7 3.86032 7.07902 3.71967 7.21967C3.57902 7.36032 3.5 7.55109 3.5 7.75C3.5 7.94891 3.57902 8.13968 3.71967 8.28033C3.86032 8.42098 4.05109 8.5 4.25 8.5C4.44891 8.5 4.63968 8.42098 4.78033 8.28033C4.92098 8.13968 5 7.94891 5 7.75C5 7.55109 4.92098 7.36032 4.78033 7.21967C4.63968 7.07902 4.44891 7 4.25 7ZM4.25 3.5C4.05109 3.5 3.86032 3.57902 3.71967 3.71967C3.57902 3.86032 3.5 4.05109 3.5 4.25C3.5 4.44891 3.57902 4.63968 3.71967 4.78033C3.86032 4.92098 4.05109 5 4.25 5C4.44891 5 4.63968 4.92098 4.78033 4.78033C4.92098 4.63968 5 4.44891 5 4.25C5 4.05109 4.92098 3.86032 4.78033 3.71967C4.63968 3.57902 4.44891 3.5 4.25 3.5ZM7.75 3.5C7.55109 3.5 7.36032 3.57902 7.21967 3.71967C7.07902 3.86032 7 4.05109 7 4.25C7 4.44891 7.07902 4.63968 7.21967 4.78033C7.36032 4.92098 7.55109 5 7.75 5C7.94891 5 8.13968 4.92098 8.28033 4.78033C8.42098 4.63968 8.5 4.44891 8.5 4.25C8.5 4.05109 8.42098 3.86032 8.28033 3.71967C8.13968 3.57902 7.94891 3.5 7.75 3.5Z"
+                        fill="#FCF9EA"
+                      />
+                    </svg>
+                  </span>
+                  <span>Игра разблокирована</span>
+                </p>
+                <button @click="showGameModal" class="btn btn-outline-primary">Начать игру</button>
+              </template>
+              <template v-else>
+                <p class="user-event__content-title">
+                  <span class="icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <path
+                        d="M9.1665 1C10.1465 1 10.9465 1.7685 10.9975 2.736L11 2.8335V9.1665C11 10.1465 10.2315 10.9465 9.264 10.9975L9.1665 11H2.8335C2.36409 11 1.91255 10.82 1.5719 10.497C1.23126 10.1741 1.02746 9.73275 1.0025 9.264L1 9.1665V2.8335C1 1.8535 1.7685 1.0535 2.736 1.0025L2.8335 1H9.1665ZM7.75 7C7.55109 7 7.36032 7.07902 7.21967 7.21967C7.07902 7.36032 7 7.55109 7 7.75C7 7.94891 7.07902 8.13968 7.21967 8.28033C7.36032 8.42098 7.55109 8.5 7.75 8.5C7.94891 8.5 8.13968 8.42098 8.28033 8.28033C8.42098 8.13968 8.5 7.94891 8.5 7.75C8.5 7.55109 8.42098 7.36032 8.28033 7.21967C8.13968 7.07902 7.94891 7 7.75 7ZM4.25 7C4.05109 7 3.86032 7.07902 3.71967 7.21967C3.57902 7.36032 3.5 7.55109 3.5 7.75C3.5 7.94891 3.57902 8.13968 3.71967 8.28033C3.86032 8.42098 4.05109 8.5 4.25 8.5C4.44891 8.5 4.63968 8.42098 4.78033 8.28033C4.92098 8.13968 5 7.94891 5 7.75C5 7.55109 4.92098 7.36032 4.78033 7.21967C4.63968 7.07902 4.44891 7 4.25 7ZM4.25 3.5C4.05109 3.5 3.86032 3.57902 3.71967 3.71967C3.57902 3.86032 3.5 4.05109 3.5 4.25C3.5 4.44891 3.57902 4.63968 3.71967 4.78033C3.86032 4.92098 4.05109 5 4.25 5C4.44891 5 4.63968 4.92098 4.78033 4.78033C4.92098 4.63968 5 4.44891 5 4.25C5 4.05109 4.92098 3.86032 4.78033 3.71967C4.63968 3.57902 4.44891 3.5 4.25 3.5ZM7.75 3.5C7.55109 3.5 7.36032 3.57902 7.21967 3.71967C7.07902 3.86032 7 4.05109 7 4.25C7 4.44891 7.07902 4.63968 7.21967 4.78033C7.36032 4.92098 7.55109 5 7.75 5C7.94891 5 8.13968 4.92098 8.28033 4.78033C8.42098 4.63968 8.5 4.44891 8.5 4.25C8.5 4.05109 8.42098 3.86032 8.28033 3.71967C8.13968 3.57902 7.94891 3.5 7.75 3.5Z"
+                        fill="#FCF9EA"
+                      />
+                    </svg>
+                  </span>
+                  <span>Игра</span>
+                </p>
+                <div>
+                  <p class="label" style="margin-bottom: 4px">Разблокируй игру во время ужина</p>
+                  <p class="info">
+                    {{ userEventStats.game.date_modif }}
+                  </p>
+                </div>
+              </template>
+            </div>
+          </div>
+          <div class="user-event__content">
+            <div class="user-event__content-info">
+              <template v-if="userEventStats.bar.status">
+                <div>
+                  <p class="user-event__content-title" style="margin-bottom: 4px">
+                    <span class="icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                      >
+                        <g clip-path="url(#clip0_92_2479)">
+                          <path
+                            d="M6.00041 0.800049C4.40041 0.800049 0.400409 1.00005 0.800409 1.40005L5.60041 6.40005V9.60005C5.60041 10.4 3.20041 10 3.20041 11.2H8.80041C8.80041 10 6.40041 10.4 6.40041 9.60005V6.40005L11.2004 1.40005C11.6004 1.00005 7.60041 0.800049 6.00041 0.800049ZM6.00041 1.60005C8.00041 1.60005 9.80041 1.80005 9.80041 1.80005L9.20041 2.40005H2.80041L2.20041 1.80005C2.20041 1.80005 4.00041 1.60005 6.00041 1.60005Z"
+                            fill="#FCF9EA"
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_92_2479">
+                            <rect width="12" height="12" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </span>
+                    <span>Твой бар</span>
+                  </p>
+                  <p class="user-event__content-title">
+                    <span> «{{ userEventStats.bar.bar_name }}» </span>
+                  </p>
+                </div>
+                <a
+                  :href="userEventStats.bar.restaurant_map_url"
+                  target="_blank"
+                  class="btn btn-outline-primary"
                 >
-                  <path
-                    d="M3.5 11V6.425C3.075 6.30833 2.71883 6.075 2.4315 5.725C2.14417 5.375 2.00033 4.96667 2 4.5V1H3V4.5H3.5V1H4.5V4.5H5V1H6V4.5C6 4.96667 5.85633 5.375 5.569 5.725C5.28167 6.075 4.92533 6.30833 4.5 6.425V11H3.5ZM8.5 11V7H7V3.5C7 2.80833 7.24383 2.21883 7.7315 1.7315C8.21917 1.24417 8.80867 1.00033 9.5 1V11H8.5Z"
-                    fill="#FCF9EA"
-                  />
-                </svg>
-              </span>
-              <span> Твой ресторан </span>
-            </p>
-            <div>
-              <p class="label">Место твоего ужина будет известно:</p>
-              <p class="info">
-                {{ isoToDate(userEvent.event_date, 'long') }}
-              </p>
+                  Перейти в Яндекс Карты
+                </a>
+              </template>
+              <template v-else>
+                <p class="user-event__content-title">
+                  <span class="icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                    >
+                      <g clip-path="url(#clip0_92_2479)">
+                        <path
+                          d="M6.00041 0.800049C4.40041 0.800049 0.400409 1.00005 0.800409 1.40005L5.60041 6.40005V9.60005C5.60041 10.4 3.20041 10 3.20041 11.2H8.80041C8.80041 10 6.40041 10.4 6.40041 9.60005V6.40005L11.2004 1.40005C11.6004 1.00005 7.60041 0.800049 6.00041 0.800049ZM6.00041 1.60005C8.00041 1.60005 9.80041 1.80005 9.80041 1.80005L9.20041 2.40005H2.80041L2.20041 1.80005C2.20041 1.80005 4.00041 1.60005 6.00041 1.60005Z"
+                          fill="#FCF9EA"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_92_2479">
+                          <rect width="12" height="12" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </span>
+                  <span>Твой бар</span>
+                </p>
+                <div>
+                  <p class="label" style="margin-bottom: 4px">Название бара будет известно:</p>
+                  <p class="info">
+                    {{ userEventStats.bar.date_modif }}
+                  </p>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -669,8 +881,8 @@ onMounted(async () => {
           <div class="payment-form__total">
             <div class="input-text">Итого</div>
             <div class="input-text">
-              <span v-if="prices.promocodePrice">{{ prices.price }} ₽</span
-              >{{ prices.promocodePrice ? prices.promocodePrice : prices.price }} ₽
+              <span v-if="_promocodeValue.code">{{ prices.price }} ₽</span
+              >{{ _promocodeValue.code ? prices.promocodePrice : prices.price }} ₽
             </div>
           </div>
           <div class="payment-form__offerta">
@@ -750,6 +962,20 @@ onMounted(async () => {
       </div>
       <div class="user-event__controls-btn">
         <button @click="cancelEvent" class="btn btn-outline-primary">Отменить ужин</button>
+      </div>
+    </BaseBottomSheet>
+    <BaseBottomSheet title="" v-model="showGameBottomSheet">
+      <div class="user-event__controls-btn">
+        <button @click="showChangeDate" class="btn btn-outline-primary">Познакомиться</button>
+      </div>
+      <div class="user-event__controls-btn">
+        <button @click="cancelEvent" class="btn btn-outline-primary">Поделиться опытом</button>
+      </div>
+      <div class="user-event__controls-btn">
+        <button @click="cancelEvent" class="btn btn-outline-primary">Узнать взгляды </button>
+      </div>
+      <div class="user-event__controls-btn">
+        <button @click="cancelEvent" class="btn btn-outline-primary">Мечтать вслух</button>
       </div>
     </BaseBottomSheet>
     <BaseBottomSheet
@@ -864,24 +1090,22 @@ onMounted(async () => {
         <button class="btn btn-primary" @click="showCancelResions">Отменить бронь</button>
       </template>
     </BaseBottomSheet>
-    <BaseBottomSheet
-      title=""
-      :model-value="showInfoModal"
-      @update:model-value="closeInfoModal"
-    >
+    <BaseBottomSheet title="" :model-value="showInfoModal" @update:model-value="closeInfoModal">
       <div class="controls-modal">
         <div class="controls-modal__header">
           <p class="modal-title">до ужина меньше 24 часов</p>
           <p class="modal-description">
-            Возврат или перенос уже невозможны. Но если ты не сможешь прийти, пожалуйста, сообщи нам. Мы предупредим твою группу, а тебе подарим скидку 30% на следующую встречу
+            Возврат или перенос уже невозможны. Но если ты не сможешь прийти, пожалуйста, сообщи
+            нам. Мы предупредим твою группу, а тебе подарим скидку 30% на следующую встречу
           </p>
         </div>
       </div>
       <template #footer>
         <div class="controls-modal__footer">
-
           <button class="btn btn-primary" @click="submitEmergencyReason(true)">Я не приду</button>
-          <button class="btn btn-outline-primary" @click="submitEmergencyReason(false)">Я смогу прийти</button>
+          <button class="btn btn-outline-primary" @click="submitEmergencyReason(false)">
+            Я смогу прийти
+          </button>
         </div>
       </template>
     </BaseBottomSheet>
@@ -894,24 +1118,19 @@ onMounted(async () => {
         <div class="controls-modal__header">
           <p class="modal-title">Еще увидимся!</p>
           <p class="modal-description">
-            Спасибо, мы предупредим твою группу — это правда важно. <b>А вот и твой промокод на скидку 30% для следующей встречи:</b> 
+            Спасибо, мы предупредим твою группу — это правда важно.
+            <b>А вот и твой промокод на скидку 30% для следующей встречи:</b> 
           </p>
           <p class="modal-title">
             {{ emergancyPromo }}
           </p>
-          <p class="modal-description">
-            До встречи за столом!
-          </p>
+          <p class="modal-description">До встречи за столом!</p>
         </div>
       </div>
       <template #footer>
-        <button class="btn btn-primary" @click="closeDiscountModal">
-          Окей
-        </button>
+        <button class="btn btn-primary" @click="closeDiscountModal">Окей</button>
       </template>
     </BaseBottomSheet>
-
-
 
     <Teleport to="body">
       <Transition name="payment-success-frame">
@@ -931,6 +1150,9 @@ onMounted(async () => {
   padding-bottom: 0;
   position: relative;
   background: var(--primary-light, #fcf9ea);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 
   .user-event {
     overflow: auto;
@@ -963,6 +1185,38 @@ onMounted(async () => {
         display: flex;
         align-items: center;
         gap: 8px;
+      }
+
+      .event-group__items {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 8px;
+        width: 100%;
+
+        .event-group__item {
+          width: 54px;
+          height: 55px;
+          border: 2px solid var(--primary-accent, #e75010);
+          border-radius: 100%;
+          overflow: hidden;
+          background: var(--primary-gray);
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+      }
+
+      &-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 12px;
       }
 
       .icon {
@@ -998,7 +1252,6 @@ onMounted(async () => {
         font-weight: 500;
         line-height: 16px; /* 133.333% */
         letter-spacing: -0.4px;
-        margin-bottom: 8px;
       }
 
       .info {
@@ -1075,7 +1328,7 @@ onMounted(async () => {
       text-align: center;
 
       /* H2 */
-      font-family: 'Sofia Sans';
+      font-family: 'Sofia Sans Extra Condensed';
       font-size: 34px;
       font-style: normal;
       font-weight: 800;
@@ -1135,6 +1388,8 @@ onMounted(async () => {
     height: 100%;
     padding: 20px 12px;
     background: var(--primary-light);
+    flex-grow: 1;
+    overflow: auto;
   }
 
   .event-items {
@@ -1232,9 +1487,9 @@ onMounted(async () => {
 
     .input-text {
       span {
-        color: var(--primary-dark, #291E1E);
+        color: var(--primary-dark, #291e1e);
         text-align: right;
-        opacity: .4;
+        opacity: 0.4;
 
         /* Text Bold */
         font-family: Manrope;
@@ -1489,6 +1744,4 @@ onMounted(async () => {
     padding: 12px;
   }
 }
-
-
 </style>

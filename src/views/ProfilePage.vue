@@ -72,7 +72,7 @@ onMounted(() => {
         <div class="user-location">
           <p>Москва</p>
         </div>
-        <button class="btn btn-outline-primary">
+        <button class="btn btn-outline-primary" @click="goToEditProfile">
           Редактировать профиль
         </button>
       </div>
@@ -178,7 +178,7 @@ onMounted(() => {
         text-align: center;
 
         /* H2 */
-        font-family: "Sofia Sans";
+        font-family: "Sofia Sans Extra Condensed";
         font-size: 34px;
         font-style: normal;
         font-weight: 800;

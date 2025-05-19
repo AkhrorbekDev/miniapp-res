@@ -14,7 +14,19 @@ const _showDeleteModal = ref(false)
 const showDeleteModal = () => {
   _showDeleteModal.value = true
 }
-
+const eventStats = ref({
+  "dinner_count": 0,
+  "acquaintance_count": 0,
+  "events": [
+    {
+      "date": "-",
+      "city": "-",
+      "restaurant": "-",
+      "group": [
+      ]
+    }
+  ]
+})
 const closeDeleteModal = () => {
   _showDeleteModal.value = false
   store.deleteUser()
@@ -35,6 +47,12 @@ const changePage = (e) => {
     },
   })
 }
+
+onMounted(() => {
+  createUserService().getUserEventsStats().then((res) => {
+    eventStats.value = res.data
+  })
+})
 </script>
 
 <template>
@@ -77,11 +95,15 @@ const changePage = (e) => {
     <div class="profile-page__content">
       <div class="profile-page__events">
         <div class="event-card">
-          <p class="event-title">1</p>
+          <p class="event-title">
+            {{ eventStats?.dinner_count || '0'}}
+          </p>
           <p class="event-description">Ужин</p>
         </div>
         <div class="event-card">
-          <p class="event-title">5</p>
+          <p class="event-title">
+            {{ eventStats?.acquaintance_count || '0' }}
+          </p>
           <p class="event-description">Знакомств</p>
         </div>
       </div>
@@ -89,21 +111,23 @@ const changePage = (e) => {
         <p>Прошедшие</p>
       </div>
 
-      <div class="profile-page__last-event">
-        <div class="last-event__item">
-          <p class="last-event__item-title">Дата</p>
-          <p class="last-event__item-description">Среда, 23 апреля 2025, 19:00</p>
-        </div>
-        <div class="last-event__item">
-          <p class="last-event__item-title">Локация</p>
-          <p class="last-event__item-description">Россия, г. Москва</p>
-        </div>
-        <div class="last-event__item">
-          <p class="last-event__item-title">Ресторан</p>
-          <p class="last-event__item-description">Название ресторана</p>
-        </div>
-        <div class="last-event__item">
-          <p class="last-event__item-title">
+      <template v-if="eventStats?.events?.length > 0">
+        <div class="profile-page__last-events">
+          <div  class="profile-page__last-event">
+            <div class="last-event__item">
+              <p class="last-event__item-title">Дата</p>
+              <p class="last-event__item-description">Среда, 23 апреля 2025, 19:00</p>
+            </div>
+            <div class="last-event__item">
+              <p class="last-event__item-title">Локация</p>
+              <p class="last-event__item-description">Россия, г. Москва</p>
+            </div>
+            <div class="last-event__item">
+              <p class="last-event__item-title">Ресторан</p>
+              <p class="last-event__item-description">Название ресторана</p>
+            </div>
+            <div class="last-event__item">
+              <p class="last-event__item-title">
             <span class="icon">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -118,27 +142,31 @@ const changePage = (e) => {
                 />
               </svg>
             </span>
-            Твоя группа
-          </p>
-          <div class="last-event__item-friends">
-            <div class="user-avatar">
-              <img :src="notProfile" alt="User Avatar" />
-            </div>
-            <div class="user-avatar">
-              <img :src="notProfile" alt="User Avatar" />
-            </div>
-            <div class="user-avatar">
-              <img :src="notProfile" alt="User Avatar" />
-            </div>
-            <div class="user-avatar">
-              <img :src="notProfile" alt="User Avatar" />
-            </div>
-            <div class="user-avatar">
-              <img :src="notProfile" alt="User Avatar" />
+                Твоя группа
+              </p>
+              <div class="last-event__item-friends">
+                <div class="user-avatar">
+                  <img :src="notProfile" alt="User Avatar" />
+                </div>
+                <div class="user-avatar">
+                  <img :src="notProfile" alt="User Avatar" />
+                </div>
+                <div class="user-avatar">
+                  <img :src="notProfile" alt="User Avatar" />
+                </div>
+                <div class="user-avatar">
+                  <img :src="notProfile" alt="User Avatar" />
+                </div>
+                <div class="user-avatar">
+                  <img :src="notProfile" alt="User Avatar" />
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
-      </div>
+
+      </template>
     </div>
     <BaseBottomSheet
       title=""
@@ -207,6 +235,8 @@ const changePage = (e) => {
   }
 
   &__content {
+    overflow: auto;
+    padding-bottom: 20px;
     &-header {
       display: flex;
       flex-direction: column;
@@ -233,7 +263,7 @@ const changePage = (e) => {
         text-align: center;
 
         /* H2 */
-        font-family: 'Sofia Sans';
+        font-family: 'Sofia Sans Extra Condensed';
         font-size: 34px;
         font-style: normal;
         font-weight: 800;
@@ -284,7 +314,7 @@ const changePage = (e) => {
         text-align: center;
 
         /* H2 */
-        font-family: 'Sofia Sans';
+        font-family: 'Sofia Sans Extra Condensed';
         font-size: 34px;
         font-style: normal;
         font-weight: 800;
@@ -306,7 +336,11 @@ const changePage = (e) => {
       }
     }
   }
-
+  &__last-events {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
   &__last-event {
     display: flex;
     flex-direction: column;

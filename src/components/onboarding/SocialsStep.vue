@@ -76,7 +76,7 @@ const props = defineProps({
       </BaseInput>
     </div>
 
-    <div class="valid-url-info">Какая-то текстовая подсказка</div>
+<!--    <div class="valid-url-info">Какая-то текстовая подсказка</div>-->
   </div>
 </template>
 

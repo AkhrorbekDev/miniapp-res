@@ -194,7 +194,7 @@ onMounted(async () => {
       text-align: center;
 
       /* H2 */
-      font-family: 'Sofia Sans';
+      font-family: 'Sofia Sans Extra Condensed';
       font-size: 34px;
       font-style: normal;
       font-weight: 800;
