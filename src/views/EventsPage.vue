@@ -1241,22 +1241,22 @@ onMounted(async () => {
         <div class="controls-modal__header">
           <div class="user-avatar">
             <img
-              :src="'https://miniapp.forkies.ru/' + selectedGroupItem?.photo || notProfile"
+              :src="selectedGroupItem?.photo_url ? 'https://miniapp.forkies.ru/' + selectedGroupItem?.photo_url : notProfile"
               alt=""
             />
           </div>
           <p class="modal-title">
             {{ selectedGroupItem?.name }}
           </p>
-          <p class="modal-description1">Журналист</p>
+<!--          <p class="modal-description1">Журналист</p>-->
           <div class="user-about-self">
             <p class="modal-description">
-              {{ selectedGroupItem?.about_self }}
+              {{ selectedGroupItem?.about }}
             </p>
           </div>
         </div>
         <div class="user-socials">
-          <a :href="selectedGroupItem?.instagram" class="btn btn-outline-rounded">
+          <a :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1278,7 +1278,7 @@ onMounted(async () => {
             </svg>
             {{ selectedGroupItem?.instagram }}
           </a>
-          <a :href="selectedGroupItem?.telegram" class="btn btn-outline-rounded">
+          <a :href="selectedGroupItem?.telegramm" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1298,7 +1298,7 @@ onMounted(async () => {
                 </clipPath>
               </defs>
             </svg>
-            {{ selectedGroupItem?.telegram }}
+            {{ selectedGroupItem?.telegramm }}
           </a>
         </div>
       </div>
