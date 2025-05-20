@@ -521,7 +521,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="events-page">
+  <div class="events-page drawer">
     <div class="events-page__header">
       <img src="@/assets/img/photo.jpg" alt="" />
       <div class="location-btn">
@@ -1325,6 +1325,15 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  &.drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding-bottom: 60px;
+  }
 
   .event-game {
     background: var(--primary-accent, #fcf9ea);

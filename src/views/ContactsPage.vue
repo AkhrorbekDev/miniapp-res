@@ -30,7 +30,7 @@ const changePage = (e) => {
 </script>
 
 <template>
-  <div class="main-container contact-page">
+  <div class="main-container contact-page drawer">
     <div class="contact-page__navbar">
       <button style="visibility: hidden" @click="changePage">
         <svg
@@ -235,7 +235,8 @@ const changePage = (e) => {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 100;
+    padding-bottom: 60px;
+
   }
 
   &__navbar {
