@@ -454,11 +454,11 @@ onMounted(() => {
         <div class="profile-edit__content-item">
           <div class="title">
             <p>О себе</p>
-            <span>{{ user.about_self?.length || 0 }}/500</span>
+            <span>{{ user.about_myself?.length || 0 }}/500</span>
           </div>
           <BaseTextArea
             class="textarea"
-            :model-value="user.about_self"
+            :model-value="user.about_myself"
             @update:model-value="updateAboutSelf"
           />
         </div>
