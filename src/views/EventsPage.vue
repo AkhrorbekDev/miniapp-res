@@ -1241,7 +1241,7 @@ onMounted(async () => {
         <div class="controls-modal__header">
           <div class="user-avatar">
             <img
-              :src="selectedGroupItem?.photo_url ? 'https://miniapp.forkies.ru/' + selectedGroupItem?.photo_url : notProfile"
+              :src="selectedGroupItem?.photo ? 'https://miniapp.forkies.ru/' + selectedGroupItem?.photo : notProfile"
               alt=""
             />
           </div>
