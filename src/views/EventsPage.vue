@@ -13,21 +13,18 @@ import { createUserService } from '@/services'
 import { useOnboardingStore } from '@/stores/onboarding.ts'
 import BaseDrawer from '@/components/base/BaseDrawer.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
 
 // import required modules
-import { Pagination, Navigation } from 'swiper/modules';
+import { Pagination, Navigation } from 'swiper/modules'
 // Import Swiper styles
 import 'swiper/css'
+import notProfile from '@/assets/img/notProfile.jpg'
 
 const events = ref([])
 
-const swiperModules = [
-  Pagination,
-  Navigation,
-]
+const swiperModules = [Pagination, Navigation]
 
 const userEvent = ref(null)
 const userEventStats = ref({
@@ -54,24 +51,28 @@ const userEventStats = ref({
 })
 const isoToDate = (isoString: string, type: string = 'long') => {
   const date = new Date(isoString)
+
   if (type === 'short') {
     return date.toLocaleDateString('ru-RU', {
       year: '2-digit',
       month: '2-digit',
       day: '2-digit',
+      timeZone: 'Europe/Moscow', // добавлено
     })
   }
-  const options = {
+
+  const options: Intl.DateTimeFormatOptions = {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'Europe/Moscow', // добавлено
   }
-  // Удалим "в" и сделаем первую букву заглавной
+
   const formatted = new Intl.DateTimeFormat('ru-RU', options).format(date)
 
-  // Удалим "в" и сделаем первую букву заглавной
+  // Заменим "в" на запятую и сделаем первую букву заглавной
   const final = formatted.replace(' в ', ', ')
   return final.charAt(0).toUpperCase() + final.slice(1)
 }
@@ -98,6 +99,8 @@ const showGameDrawer = ref(false)
 const showDiscountModal = ref(false)
 const emergancyPromo = ref('')
 const showGameBottomSheet = ref(false)
+const showGroupItemModal = ref(false)
+const selectedGroupItem = ref(null)
 const card = ref({
   pan: '',
   date: '',
@@ -115,6 +118,17 @@ const closePaymentForm = () => {
 const showGameModal = () => {
   showGameBottomSheet.value = true
 }
+
+const showGroupItem = (item) => {
+  selectedGroupItem.value = item
+  showGroupItemModal.value = true
+}
+
+const closeGroupItemModal = () => {
+  showGroupItemModal.value = false
+  selectedGroupItem.value = null
+}
+
 const getUserEvent = () => {
   return Promise.all([
     createUserService()
@@ -204,7 +218,7 @@ const confirmPayment = () => {
             //options
             publicId: 'pk_dbb7431f80a9ac46f07793ef02de8',
             description: 'Оплата ужина Forkies.ru',
-            amount: prices.value.promocodePrice ? prices.value.promocodePrice : prices.value.price,
+            amount: res.event_price,
             currency: 'RUB',
             accountId: '6122396208',
             invoiceId: res.payment_id,
@@ -290,12 +304,15 @@ const showBottomSheet = () => {
 }
 
 function isUnder24Hours(isoDateStr) {
-  const now = new Date()
-  const target = new Date(isoDateStr)
+  const MSK_OFFSET = 3 * 60; // в минутах
+  const nowUTC = new Date(new Date().toISOString()); // текущее время в UTC
+  const nowMSK = new Date(nowUTC.getTime() + MSK_OFFSET * 60 * 1000);
 
-  const diffInMs = target - now
-  const diffInHours = diffInMs / (1000 * 60 * 60)
-  return diffInHours < 24
+  const target = new Date(isoDateStr);
+  const diffInMs = target.getTime() - nowMSK.getTime();
+  const diffInHours = diffInMs / (1000 * 60 * 60);
+
+  return diffInHours < 24;
 }
 
 const showControls = () => {
@@ -375,7 +392,7 @@ const showChangeDate = () => {
 }
 
 const cancelEvent = () => {
-  if (!isUnder24Hours(userEvent.value.event_date)) {
+  if (isUnder24Hours(userEvent.value.event_date)) {
     showInfoModal.value = true
     showEventControls.value = false
   } else {
@@ -602,7 +619,8 @@ onMounted(async () => {
             </div>
             <div class="user-event__item">
               <span class="label">Локация</span>
-              <span class="info">{{ userEvent.locationName }}</span>
+              <span class="info">
+                {{ userEventStats?.restaurant?.status ? userEventStats?.restaurant?.restaurant_name : 'Будет известна за 24 часа до ужина'  }}</span>
             </div>
           </div>
         </div>
@@ -696,8 +714,9 @@ onMounted(async () => {
                     v-for="item in userEventStats?.group.photo_users"
                     :key="item.username"
                     class="event-group__item"
+                    @click="showGroupItem(item)"
                   >
-                    <img :src="'https://miniapp.forkies.ru/' + item.photo" alt="" />
+                    <img :src="('https://miniapp.forkies.ru/' + item.photo) || notProfile" alt="" />
                   </div>
                 </div>
               </template>
@@ -810,7 +829,7 @@ onMounted(async () => {
                   </p>
                 </div>
                 <a
-                  :href="userEventStats?.bar.restaurant_map_url"
+                  :href="userEventStats?.bar.bar_map_url"
                   target="_blank"
                   class="btn btn-outline-primary"
                 >
@@ -857,22 +876,22 @@ onMounted(async () => {
 
     <BaseBottomSheet :model-value="showPaymentForm" title="" @update:model-value="closePaymentForm">
       <div class="payment-form">
-<!--        <div class="payment-form__header">-->
-<!--          <button-->
-<!--            :class="paymentType === 'subscription' ? 'btn-dark' : 'btn-outline-rounded'"-->
-<!--            class="btn"-->
-<!--            @click="paymentType = 'subscription'"-->
-<!--          >-->
-<!--            Подписка-->
-<!--          </button>-->
-<!--          <button-->
-<!--            :class="paymentType === 'one' ? 'btn-dark' : 'btn-outline-rounded'"-->
-<!--            class="btn"-->
-<!--            @click="paymentType = 'one'"-->
-<!--          >-->
-<!--            1 встреча-->
-<!--          </button>-->
-<!--        </div>-->
+        <!--        <div class="payment-form__header">-->
+        <!--          <button-->
+        <!--            :class="paymentType === 'subscription' ? 'btn-dark' : 'btn-outline-rounded'"-->
+        <!--            class="btn"-->
+        <!--            @click="paymentType = 'subscription'"-->
+        <!--          >-->
+        <!--            Подписка-->
+        <!--          </button>-->
+        <!--          <button-->
+        <!--            :class="paymentType === 'one' ? 'btn-dark' : 'btn-outline-rounded'"-->
+        <!--            class="btn"-->
+        <!--            @click="paymentType = 'one'"-->
+        <!--          >-->
+        <!--            1 встреча-->
+        <!--          </button>-->
+        <!--        </div>-->
         <div v-if="event" class="payment-form__content">
           <div class="payment-form__inputs">
             <div class="payment-form__input">
@@ -1160,25 +1179,39 @@ onMounted(async () => {
       </template>
     </BaseBottomSheet>
 
-    <BaseDrawer
-      class="event-game-drawer"
-      v-model="showGameDrawer"
-      :show-footer="false"
-    >
+    <BaseDrawer class="event-game-drawer" v-model="showGameDrawer" :show-footer="false">
       <template #navbar>
         <div class="event-game__navbar">
           <button @click="showGameDrawer = false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z" fill="#FCF9EA"/>
-              <path d="M16.7364 7.2636C17.0879 7.61508 17.0879 8.18492 16.7364 8.5364L13.273 12L16.7364 15.4636C17.0586 15.7858 17.0854 16.2915 16.817 16.6442L16.7364 16.7364C16.3849 17.0879 15.8151 17.0879 15.4636 16.7364L12 13.273L8.5364 16.7364C8.18492 17.0879 7.61508 17.0879 7.2636 16.7364C6.91213 16.3849 6.91213 15.8151 7.2636 15.4636L10.727 12L7.2636 8.5364C6.94142 8.21421 6.91457 7.70853 7.18306 7.35577L7.2636 7.2636C7.61508 6.91213 8.18492 6.91213 8.5364 7.2636L12 10.727L15.4636 7.2636C15.8151 6.91213 16.3849 6.91213 16.7364 7.2636Z" fill="#E75010"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z"
+                fill="#FCF9EA"
+              />
+              <path
+                d="M16.7364 7.2636C17.0879 7.61508 17.0879 8.18492 16.7364 8.5364L13.273 12L16.7364 15.4636C17.0586 15.7858 17.0854 16.2915 16.817 16.6442L16.7364 16.7364C16.3849 17.0879 15.8151 17.0879 15.4636 16.7364L12 13.273L8.5364 16.7364C8.18492 17.0879 7.61508 17.0879 7.2636 16.7364C6.91213 16.3849 6.91213 15.8151 7.2636 15.4636L10.727 12L7.2636 8.5364C6.94142 8.21421 6.91457 7.70853 7.18306 7.35577L7.2636 7.2636C7.61508 6.91213 8.18492 6.91213 8.5364 7.2636L12 10.727L15.4636 7.2636C15.8151 6.91213 16.3849 6.91213 16.7364 7.2636Z"
+                fill="#E75010"
+              />
             </svg>
           </button>
         </div>
       </template>
       <div class="event-game">
-        <swiper :modules="swiperModules" :navigation="true"  :pagination="{
-      type: 'fraction',
-    }" :slides-per-view="1" :space-between="50">
+        <swiper
+          :modules="swiperModules"
+          :navigation="true"
+          :pagination="{
+            type: 'fraction',
+          }"
+          :slides-per-view="1"
+          :space-between="50"
+        >
           <swiper-slide>
             <div class="event-game__item">
               <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
@@ -1198,6 +1231,78 @@ onMounted(async () => {
         </swiper>
       </div>
     </BaseDrawer>
+
+    <BaseBottomSheet
+      title=""
+      :model-value="showGroupItemModal"
+      @update:model-value="closeGroupItemModal"
+    >
+      <div class="controls-modal">
+        <div class="controls-modal__header">
+          <div class="user-avatar">
+            <img
+              :src="'https://miniapp.forkies.ru/' + selectedGroupItem?.photo || notProfile"
+              alt=""
+            />
+          </div>
+          <p class="modal-title">
+            {{ selectedGroupItem?.name }}
+          </p>
+          <p class="modal-description1">Журналист</p>
+          <div class="user-about-self">
+            <p class="modal-description">
+              {{ selectedGroupItem?.about_self }}
+            </p>
+          </div>
+        </div>
+        <div class="user-socials">
+          <a :href="selectedGroupItem?.instagram" class="btn btn-outline-rounded">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_21_3882)">
+                <path
+                  d="M11.0286 0C12.1536 0.003 12.7246 0.009 13.2176 0.023L13.4116 0.03C13.6356 0.038 13.8566 0.0479999 14.1236 0.0599999C15.1876 0.11 15.9136 0.278 16.5506 0.525C17.2106 0.779 17.7666 1.123 18.3226 1.678C18.8313 2.17773 19.2248 2.78247 19.4756 3.45C19.7226 4.087 19.8906 4.813 19.9406 5.878C19.9526 6.144 19.9626 6.365 19.9706 6.59L19.9766 6.784C19.9916 7.276 19.9976 7.847 19.9996 8.972L20.0006 9.718V11.028C20.003 11.7574 19.9953 12.4868 19.9776 13.216L19.9716 13.41C19.9636 13.635 19.9536 13.856 19.9416 14.122C19.8916 15.187 19.7216 15.912 19.4756 16.55C19.2248 17.2175 18.8313 17.8223 18.3226 18.322C17.8228 18.8307 17.2181 19.2242 16.5506 19.475C15.9136 19.722 15.1876 19.89 14.1236 19.94L13.4116 19.97L13.2176 19.976C12.7246 19.99 12.1536 19.997 11.0286 19.999L10.2826 20H8.97357C8.24383 20.0026 7.51409 19.9949 6.78457 19.977L6.59057 19.971C6.35318 19.962 6.11584 19.9517 5.87857 19.94C4.81457 19.89 4.08857 19.722 3.45057 19.475C2.7834 19.2241 2.17901 18.8306 1.67957 18.322C1.17051 17.8224 0.776678 17.2176 0.525569 16.55C0.278569 15.913 0.110569 15.187 0.0605687 14.122L0.0305688 13.41L0.0255689 13.216C0.00713493 12.4868 -0.00119929 11.7574 0.000568797 11.028V8.972C-0.0021991 8.2426 0.00513501 7.5132 0.0225689 6.784L0.0295688 6.59C0.0375688 6.365 0.0475688 6.144 0.0595688 5.878C0.109569 4.813 0.277569 4.088 0.524569 3.45C0.776263 2.7822 1.17079 2.17744 1.68057 1.678C2.17972 1.16955 2.78376 0.776074 3.45057 0.525C4.08857 0.278 4.81357 0.11 5.87857 0.0599999C6.14457 0.0479999 6.36657 0.038 6.59057 0.03L6.78457 0.0239999C7.51376 0.00623271 8.24316 -0.0014347 8.97257 0.000999928L11.0286 0ZM10.0006 5C8.67449 5 7.40272 5.52678 6.46503 6.46447C5.52735 7.40215 5.00057 8.67392 5.00057 10C5.00057 11.3261 5.52735 12.5979 6.46503 13.5355C7.40272 14.4732 8.67449 15 10.0006 15C11.3267 15 12.5984 14.4732 13.5361 13.5355C14.4738 12.5979 15.0006 11.3261 15.0006 10C15.0006 8.67392 14.4738 7.40215 13.5361 6.46447C12.5984 5.52678 11.3267 5 10.0006 5ZM10.0006 7C10.3945 6.99993 10.7847 7.07747 11.1487 7.22817C11.5127 7.37887 11.8434 7.5998 12.122 7.87833C12.4007 8.15686 12.6217 8.48754 12.7725 8.85149C12.9233 9.21544 13.001 9.60553 13.0011 9.9995C13.0011 10.3935 12.9236 10.7836 12.7729 11.1476C12.6222 11.5116 12.4013 11.8423 12.1227 12.121C11.8442 12.3996 11.5135 12.6206 11.1496 12.7714C10.7856 12.9223 10.3955 12.9999 10.0016 13C9.20592 13 8.44286 12.6839 7.88025 12.1213C7.31764 11.5587 7.00157 10.7956 7.00157 10C7.00157 9.20435 7.31764 8.44129 7.88025 7.87868C8.44286 7.31607 9.20592 7 10.0016 7M15.2516 3.5C14.92 3.5 14.6021 3.6317 14.3677 3.86612C14.1333 4.10054 14.0016 4.41848 14.0016 4.75C14.0016 5.08152 14.1333 5.39946 14.3677 5.63388C14.6021 5.8683 14.92 6 15.2516 6C15.5831 6 15.901 5.8683 16.1355 5.63388C16.3699 5.39946 16.5016 5.08152 16.5016 4.75C16.5016 4.41848 16.3699 4.10054 16.1355 3.86612C15.901 3.6317 15.5831 3.5 15.2516 3.5Z"
+                  fill="#291E1E"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_21_3882">
+                  <rect width="20" height="20" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            {{ selectedGroupItem?.instagram }}
+          </a>
+          <a :href="selectedGroupItem?.telegram" class="btn btn-outline-rounded">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_21_3889)">
+                <path
+                  d="M19.9362 3.51976L16.9062 17.7048C16.6802 18.7038 16.1002 18.9288 15.2622 18.4778L10.7172 15.1258L8.49216 17.2528C8.26716 17.4788 8.04116 17.7048 7.52516 17.7048L7.88016 13.0298L16.3582 5.32576C16.7122 4.97076 16.2612 4.84176 15.8102 5.13276L5.26916 11.7728L0.723157 10.3868C-0.275843 10.0648 -0.275843 9.38676 0.949157 8.93676L18.6142 2.06976C19.4842 1.81176 20.2262 2.26376 19.9362 3.51976Z"
+                  fill="#291E1E"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_21_3889">
+                  <rect width="20" height="20" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            {{ selectedGroupItem?.telegram }}
+          </a>
+        </div>
+      </div>
+    </BaseBottomSheet>
 
     <Teleport to="body">
       <Transition name="payment-success-frame">
@@ -1261,9 +1366,8 @@ onMounted(async () => {
       }
 
       .event-group__items {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
         gap: 8px;
         margin-top: 8px;
         width: 100%;
@@ -1275,6 +1379,8 @@ onMounted(async () => {
           border-radius: 100%;
           overflow: hidden;
           background: var(--primary-gray);
+          //margin-left: auto;
+          //margin-right: auto;
 
           img {
             width: 100%;
@@ -1795,12 +1901,14 @@ onMounted(async () => {
 <style lang="scss">
 .event-game-drawer {
   padding: 0 !important;
+  --swiper-navigation-top-offset: calc(100% - 20%);
+
   .swiper {
     width: 100%;
     height: 100%;
 
     .swiper-pagination {
-      color: var(--primary-light, #FCF9EA);
+      color: var(--primary-light, #fcf9ea);
       text-align: center;
 
       /* Text Medium */
@@ -1811,28 +1919,31 @@ onMounted(async () => {
       line-height: 22px; /* 137.5% */
       letter-spacing: -0.6px;
       padding-bottom: 21px;
-
-
     }
+
     .swiper-button-prev:after {
-      content: url("/img/arrow_left.svg");
+      content: url('/img/arrow_left.svg');
       width: 24px;
       height: 24px;
     }
+
     .swiper-button-next:after {
-      content: url("/img/arrow_right.svg");
+      content: url('/img/arrow_right.svg');
       width: 24px;
       height: 24px;
     }
   }
+
   .base-drawer__content {
     padding: 0;
     height: 100%;
   }
+
   .base-drawer__navbar {
     position: absolute;
     right: 4px;
   }
+
   .event-game__navbar {
     display: flex;
     align-items: center;
@@ -1840,26 +1951,30 @@ onMounted(async () => {
     justify-content: space-between;
     background: transparent;
     z-index: 101;
-    button  {
+
+    button {
       background: transparent;
       border: none;
       width: 48px;
       height: 44px;
       padding: 10px 12px;
+
       svg {
         width: 24px;
         height: 24px;
-        fill: var(--primary-light, #FCF9EA);
+        fill: var(--primary-light, #fcf9ea);
       }
     }
   }
+
   .event-game__item {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
+
     p {
-      color: var(--primary-light, #FCF9EA);
+      color: var(--primary-light, #fcf9ea);
       text-align: center;
 
       /* H3 */

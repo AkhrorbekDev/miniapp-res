@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import BaseInput from '@/components/base/BaseInput.vue'
-
-import { ref } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   instagram: {
@@ -13,17 +11,30 @@ const props = defineProps({
     default: '',
   },
 })
+
+const emit = defineEmits(['update:instagram', 'update:telegramm'])
+
+const instagramUsername = computed({
+  get: () => props.instagram,
+  set: (value) => emit('update:instagram', `${value}`),
+})
+
+const telegramUsername = computed({
+  get: () => props.telegramm,
+  set: (value) => emit('update:telegramm', `${value}`),
+})
+
+const test = (e) => {
+  console.log('test', e.target)
+}
+
 </script>
 
 <template>
   <div class="social-links">
     <div class="social-inputs">
-      <BaseInput
-        placeholder="instagram.com/"
-        :model-value="instagram"
-        @update:model-value="$emit('update:instagram', $event)"
-      >
-        <template #icon-left>
+      <label for="instagram1" class="base-input">
+        <span class="left-icon">
           <svg
             width="20"
             height="20"
@@ -44,14 +55,21 @@ const props = defineProps({
               </clipPath>
             </defs>
           </svg>
-        </template>
-      </BaseInput>
-      <BaseInput
-        placeholder="t.me/"
-        :model-value="telegramm"
-        @update:model-value="$emit('update:telegramm', $event)"
-      >
-        <template #icon-left>
+        </span>
+
+        <span class="input-wrapper">
+          <span
+            class="domain-input"
+            :class="{
+              'empty-input': instagramUsername === '',
+            }"
+            >instagram.com/</span
+          >
+          <input type="text" id="instagram1" v-model="instagramUsername" />
+        </span>
+      </label>
+      <label for="telegramm" class="base-input">
+        <span class="left-icon">
           <svg
             width="20"
             height="20"
@@ -72,11 +90,61 @@ const props = defineProps({
               </clipPath>
             </defs>
           </svg>
-        </template>
-      </BaseInput>
+        </span>
+
+        <span class="input-wrapper">
+          <span
+            class="domain-input"
+            :class="{
+              'empty-input': telegramUsername === '',
+            }"
+            >t.me/</span
+          >
+          <input type="text" id="telegramm" v-model="telegramUsername" />
+        </span>
+      </label>
+      <!--      <BaseInput
+              placeholder="instagram.com/"
+              :model-value="instagramUsername"
+              @update:model-value="instagramUsername = $event"
+              :class="{ 'empty-input': isInstagramEmpty }"
+            >
+              <template #icon-left>
+
+              </template>
+            </BaseInput>-->
+      <!--      <BaseInput-->
+      <!--        placeholder="t.me/"-->
+      <!--        :model-value="telegramUsername"-->
+      <!--        @update:model-value="telegramUsername = $event"-->
+      <!--        :class="{ 'empty-input': isTelegramEmpty }"-->
+      <!--      >-->
+      <!--        <template #icon-left>-->
+      <!--          <svg-->
+      <!--            width="20"-->
+      <!--            height="20"-->
+      <!--            viewBox="0 0 20 20"-->
+      <!--            fill="none"-->
+      <!--            xmlns="http://www.w3.org/2000/svg"-->
+      <!--          >-->
+      <!--            <g id="telegram" clip-path="url(#clip0_7_725)">-->
+      <!--              <path-->
+      <!--                id="Vector"-->
+      <!--                d="M19.9362 3.51976L16.9062 17.7048C16.6802 18.7038 16.1002 18.9288 15.2622 18.4778L10.7172 15.1258L8.49216 17.2528C8.26716 17.4788 8.04116 17.7048 7.52516 17.7048L7.88016 13.0298L16.3582 5.32576C16.7122 4.97076 16.2612 4.84176 15.8102 5.13276L5.26916 11.7728L0.723157 10.3868C-0.275843 10.0648 -0.275843 9.38676 0.949157 8.93676L18.6142 2.06976C19.4842 1.81176 20.2262 2.26376 19.9362 3.51976Z"-->
+      <!--                fill="#291E1E"-->
+      <!--              />-->
+      <!--            </g>-->
+      <!--            <defs>-->
+      <!--              <clipPath id="clip0_7_725">-->
+      <!--                <rect width="20" height="20" fill="white" />-->
+      <!--              </clipPath>-->
+      <!--            </defs>-->
+      <!--          </svg>-->
+      <!--        </template>-->
+      <!--      </BaseInput>-->
     </div>
 
-<!--    <div class="valid-url-info">Какая-то текстовая подсказка</div>-->
+    <!--    <div class="valid-url-info">Какая-то текстовая подсказка</div>-->
   </div>
 </template>
 
@@ -87,10 +155,41 @@ const props = defineProps({
   justify-content: space-between;
 }
 
+.input-wrapper {
+  display: flex;
+  align-items: center;
+
+  input {
+    padding-left: 0;
+  }
+}
+
+.domain-input {
+  color: var(--primary-dark, #291e1e);
+
+  /* Text Medium */
+  font-family: Manrope;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 22px; /* 137.5% */
+  letter-spacing: -0.6px;
+
+  &.empty-input {
+    opacity: 0.5;
+  }
+}
+
 .social-inputs {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+:deep(.empty-input) {
+  input {
+    opacity: 0.5;
+  }
 }
 
 .valid-url-info {

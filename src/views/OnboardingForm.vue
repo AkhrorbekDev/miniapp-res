@@ -487,8 +487,8 @@ const setValues = (data) => {
   for (let i = 0; i < questions.value.length; i++) {
     let value = data[questions.value[i].key]
     if (questions.value[i].key === FormKeys.socials) {
-      formValues.value[FormKeys.instagram] = data[FormKeys.instagram] || null
-      formValues.value[FormKeys.telegram] = data[FormKeys.telegram] || null
+      formValues.value[FormKeys.instagram] = data[FormKeys.instagram] || ''
+      formValues.value[FormKeys.telegram] = data[FormKeys.telegram] || ''
       if (!formValues.value.instagram || !formValues.value[FormKeys.telegram]) {
         value = false
       } else {

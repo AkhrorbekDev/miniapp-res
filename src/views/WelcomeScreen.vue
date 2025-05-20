@@ -17,7 +17,7 @@ const test = () => {
           <img src="@/assets/img/logo.png" alt="" />
         </div>
         <div class="home-page__content__title">
-          1 Уютные встречи <br />
+          Уютные встречи <br />
           за ужином
         </div>
         <div class="home-page__content__description">

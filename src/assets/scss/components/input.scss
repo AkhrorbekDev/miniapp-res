@@ -26,7 +26,15 @@
     height: 100%;
     background: transparent;
     border: none;
+    color: var(--primary-dark, #291E1E);
 
+    /* Text Medium */
+    font-family: Manrope;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px; /* 137.5% */
+    letter-spacing: -0.6px;
   }
 }
 

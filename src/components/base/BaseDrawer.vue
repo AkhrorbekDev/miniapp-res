@@ -87,7 +87,7 @@ const closeDrawer = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 101;
+  z-index: 1001;
   background-color: var(--primary-light);
   display: flex;
   flex-direction: column;

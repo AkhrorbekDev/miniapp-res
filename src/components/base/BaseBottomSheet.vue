@@ -25,9 +25,9 @@ const close = () => {
 
 <template>
   <Teleport to="body">
-    <Transition name="bottom-sheet">
-      <div v-if="isOpen" class="bottom-sheet-overlay" @click="close">
-        <div class="bottom-sheet" @click.stop>
+    <div :class="{activate: isOpen}" class="bottom-sheet-overlay" @click="close">
+      <Transition name="bottom-sheet">
+        <div v-if="isOpen" class="bottom-sheet" @click.stop>
           <div class="bottom-sheet-header">
             <slot name="header">
               <div class="header-content">
@@ -53,22 +53,25 @@ const close = () => {
             <slot name="footer"></slot>
           </div>
         </div>
-      </div>
-    </Transition>
+      </Transition>
+    </div>
+
   </Teleport>
 </template>
 
 <style scoped lang="scss">
 .bottom-sheet-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5); // появится сразу
   display: flex;
   align-items: flex-end;
-  z-index: 1000;
+  z-index: -1;
+
+  transition: background-color 0.3s ease-out;
+  &.activate {
+    z-index: 1000;
+  }
 }
 
 .bottom-sheet {
@@ -80,7 +83,6 @@ const close = () => {
   flex-direction: column;
   overflow: hidden;
 }
-
 .bottom-sheet-header {
   padding: 4px;
 }
@@ -125,6 +127,7 @@ const close = () => {
 }
 
 // Transition animations
+// Анимация только для bottom-sheet
 .bottom-sheet-enter-active,
 .bottom-sheet-leave-active {
   transition: transform 0.3s ease-out;
@@ -134,7 +137,6 @@ const close = () => {
 .bottom-sheet-leave-to {
   transform: translateY(100%);
 }
-
 .bottom-sheet-enter-active .bottom-sheet-overlay,
 .bottom-sheet-leave-active .bottom-sheet-overlay {
   transition: opacity 0.3s ease-out;

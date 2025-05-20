@@ -11,22 +11,28 @@ const user = ref({})
 const store = useOnboardingStore()
 const router = useRouter()
 const _showDeleteModal = ref(false)
+const haveEventStatus = ref(false)
 const showDeleteModal = () => {
   _showDeleteModal.value = true
 }
+
 const eventStats = ref({
-  "dinner_count": 0,
-  "acquaintance_count": 0,
-  "events": [
-    {
-      "date": "-",
-      "city": "-",
-      "restaurant": "-",
-      "group": [
-      ]
-    }
-  ]
+  dinner_count: 0,
+  acquaintance_count: 0,
+  events: [],
 })
+const selectedGroupItem = ref(null)
+const showGroupItemModal = ref(false)
+const openGroupItemModal = (e) => {
+  selectedGroupItem.value = e
+  showGroupItemModal.value = true
+}
+
+const closeGroupItemModal = () => {
+  showGroupItemModal.value = false
+  selectedGroupItem.value = null
+}
+
 const closeDeleteModal = () => {
   _showDeleteModal.value = false
   store.deleteUser()
@@ -49,9 +55,11 @@ const changePage = (e) => {
 }
 
 onMounted(() => {
-  createUserService().getUserEventsStats().then((res) => {
-    eventStats.value = res.data
-  })
+  createUserService()
+    .getUserEventsStats()
+    .then((res) => {
+      eventStats.value = res
+    })
 })
 </script>
 
@@ -96,7 +104,7 @@ onMounted(() => {
       <div class="profile-page__events">
         <div class="event-card">
           <p class="event-title">
-            {{ eventStats?.dinner_count || '0'}}
+            {{ eventStats?.dinner_count || '0' }}
           </p>
           <p class="event-description">Ужин</p>
         </div>
@@ -107,67 +115,149 @@ onMounted(() => {
           <p class="event-description">Знакомств</p>
         </div>
       </div>
-      <div class="profile-page__title">
+      <div v-if="eventStats?.events.length" class="profile-page__title">
         <p>Прошедшие</p>
       </div>
 
-      <template v-if="eventStats?.events?.length > 0">
+      <template v-if="true">
         <div class="profile-page__last-events">
-          <div  class="profile-page__last-event">
+          <div
+            v-for="event in eventStats?.events"
+            :key="event.date"
+            class="profile-page__last-event"
+          >
             <div class="last-event__item">
               <p class="last-event__item-title">Дата</p>
-              <p class="last-event__item-description">Среда, 23 апреля 2025, 19:00</p>
+              <p class="last-event__item-description">
+                {{ event.date }}
+              </p>
             </div>
             <div class="last-event__item">
               <p class="last-event__item-title">Локация</p>
-              <p class="last-event__item-description">Россия, г. Москва</p>
+              <p class="last-event__item-description">
+                {{ event.city }}
+              </p>
             </div>
             <div class="last-event__item">
               <p class="last-event__item-title">Ресторан</p>
-              <p class="last-event__item-description">Название ресторана</p>
+              <p class="last-event__item-description">
+                {{ event.restaurant }}
+              </p>
             </div>
             <div class="last-event__item">
               <p class="last-event__item-title">
-            <span class="icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-              >
-                <path
-                  d="M0.5 10V8.60001C0.5 8.31668 0.573 8.05635 0.719 7.81901C0.865 7.58168 1.05867 7.40035 1.3 7.27501C1.81667 7.01668 2.34167 6.82301 2.875 6.69401C3.40833 6.56501 3.95 6.50035 4.5 6.50001C5.05 6.49968 5.59167 6.56435 6.125 6.69401C6.65833 6.82368 7.18333 7.01735 7.7 7.27501C7.94167 7.40001 8.1355 7.58135 8.2815 7.81901C8.4275 8.05668 8.50033 8.31701 8.5 8.60001V10H0.5ZM9.5 10V8.50001C9.5 8.13335 9.398 7.78118 9.194 7.44351C8.99 7.10585 8.70033 6.81635 8.325 6.57501C8.75 6.62501 9.15 6.71051 9.525 6.83151C9.9 6.95251 10.25 7.10035 10.575 7.27501C10.875 7.44168 11.1042 7.62701 11.2625 7.83101C11.4208 8.03501 11.5 8.25801 11.5 8.50001V10H9.5ZM4.5 6.00001C3.95 6.00001 3.47917 5.80418 3.0875 5.41251C2.69583 5.02085 2.5 4.55001 2.5 4.00001C2.5 3.45001 2.69583 2.97918 3.0875 2.58751C3.47917 2.19585 3.95 2.00001 4.5 2.00001C5.05 2.00001 5.52083 2.19585 5.9125 2.58751C6.30417 2.97918 6.5 3.45001 6.5 4.00001C6.5 4.55001 6.30417 5.02085 5.9125 5.41251C5.52083 5.80418 5.05 6.00001 4.5 6.00001ZM9.5 4.00001C9.5 4.55001 9.30417 5.02085 8.9125 5.41251C8.52083 5.80418 8.05 6.00001 7.5 6.00001C7.40833 6.00001 7.29167 5.98968 7.15 5.96901C7.00833 5.94835 6.89167 5.92535 6.8 5.90001C7.025 5.63335 7.198 5.33751 7.319 5.01251C7.44 4.68751 7.50033 4.35001 7.5 4.00001C7.49967 3.65001 7.43933 3.31251 7.319 2.98751C7.19867 2.66251 7.02567 2.36668 6.8 2.10001C6.91667 2.05835 7.03333 2.03118 7.15 2.01851C7.26667 2.00585 7.38333 1.99968 7.5 2.00001C8.05 2.00001 8.52083 2.19585 8.9125 2.58751C9.30417 2.97918 9.5 3.45001 9.5 4.00001Z"
-                  fill="#FCF9EA"
-                />
-              </svg>
-            </span>
+                <span class="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                  >
+                    <path
+                      d="M0.5 10V8.60001C0.5 8.31668 0.573 8.05635 0.719 7.81901C0.865 7.58168 1.05867 7.40035 1.3 7.27501C1.81667 7.01668 2.34167 6.82301 2.875 6.69401C3.40833 6.56501 3.95 6.50035 4.5 6.50001C5.05 6.49968 5.59167 6.56435 6.125 6.69401C6.65833 6.82368 7.18333 7.01735 7.7 7.27501C7.94167 7.40001 8.1355 7.58135 8.2815 7.81901C8.4275 8.05668 8.50033 8.31701 8.5 8.60001V10H0.5ZM9.5 10V8.50001C9.5 8.13335 9.398 7.78118 9.194 7.44351C8.99 7.10585 8.70033 6.81635 8.325 6.57501C8.75 6.62501 9.15 6.71051 9.525 6.83151C9.9 6.95251 10.25 7.10035 10.575 7.27501C10.875 7.44168 11.1042 7.62701 11.2625 7.83101C11.4208 8.03501 11.5 8.25801 11.5 8.50001V10H9.5ZM4.5 6.00001C3.95 6.00001 3.47917 5.80418 3.0875 5.41251C2.69583 5.02085 2.5 4.55001 2.5 4.00001C2.5 3.45001 2.69583 2.97918 3.0875 2.58751C3.47917 2.19585 3.95 2.00001 4.5 2.00001C5.05 2.00001 5.52083 2.19585 5.9125 2.58751C6.30417 2.97918 6.5 3.45001 6.5 4.00001C6.5 4.55001 6.30417 5.02085 5.9125 5.41251C5.52083 5.80418 5.05 6.00001 4.5 6.00001ZM9.5 4.00001C9.5 4.55001 9.30417 5.02085 8.9125 5.41251C8.52083 5.80418 8.05 6.00001 7.5 6.00001C7.40833 6.00001 7.29167 5.98968 7.15 5.96901C7.00833 5.94835 6.89167 5.92535 6.8 5.90001C7.025 5.63335 7.198 5.33751 7.319 5.01251C7.44 4.68751 7.50033 4.35001 7.5 4.00001C7.49967 3.65001 7.43933 3.31251 7.319 2.98751C7.19867 2.66251 7.02567 2.36668 6.8 2.10001C6.91667 2.05835 7.03333 2.03118 7.15 2.01851C7.26667 2.00585 7.38333 1.99968 7.5 2.00001C8.05 2.00001 8.52083 2.19585 8.9125 2.58751C9.30417 2.97918 9.5 3.45001 9.5 4.00001Z"
+                      fill="#FCF9EA"
+                    />
+                  </svg>
+                </span>
                 Твоя группа
               </p>
               <div class="last-event__item-friends">
-                <div class="user-avatar">
-                  <img :src="notProfile" alt="User Avatar" />
-                </div>
-                <div class="user-avatar">
-                  <img :src="notProfile" alt="User Avatar" />
-                </div>
-                <div class="user-avatar">
-                  <img :src="notProfile" alt="User Avatar" />
-                </div>
-                <div class="user-avatar">
-                  <img :src="notProfile" alt="User Avatar" />
-                </div>
-                <div class="user-avatar">
-                  <img :src="notProfile" alt="User Avatar" />
+                <div
+                  @click="openGroupItemModal"
+                  v-for="group in event.group"
+                  :key="group.username"
+                  class="user-avatar"
+                >
+                  <img
+                    :src="
+                      group.photo_url ? 'https://miniapp.forkies.ru/' + group.photo_url : notProfile
+                    "
+                    alt="User Avatar"
+                  />
                 </div>
               </div>
             </div>
           </div>
-
         </div>
-
       </template>
     </div>
+    <BaseBottomSheet
+      title=""
+      :model-value="showGroupItemModal"
+      @update:model-value="closeGroupItemModal"
+    >
+      <div class="controls-modal">
+        <div class="controls-modal__header">
+          <div class="user-avatar">
+            <img
+              :src="
+                selectedGroupItem?.photo_url
+                  ? 'https://miniapp.forkies.ru/' + selectedGroupItem?.photo
+                  : notProfile
+              "
+              alt=""
+            />
+          </div>
+          <p class="modal-title">
+            {{ selectedGroupItem?.name }}
+          </p>
+          <p class="modal-description1">Журналист</p>
+          <div class="user-about-self">
+            <p class="modal-description">
+              {{ selectedGroupItem?.about_self }}
+            </p>
+          </div>
+        </div>
+        <div class="user-socials">
+          <a :href="selectedGroupItem?.instagram" class="btn btn-outline-rounded">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_21_3882)">
+                <path
+                  d="M11.0286 0C12.1536 0.003 12.7246 0.009 13.2176 0.023L13.4116 0.03C13.6356 0.038 13.8566 0.0479999 14.1236 0.0599999C15.1876 0.11 15.9136 0.278 16.5506 0.525C17.2106 0.779 17.7666 1.123 18.3226 1.678C18.8313 2.17773 19.2248 2.78247 19.4756 3.45C19.7226 4.087 19.8906 4.813 19.9406 5.878C19.9526 6.144 19.9626 6.365 19.9706 6.59L19.9766 6.784C19.9916 7.276 19.9976 7.847 19.9996 8.972L20.0006 9.718V11.028C20.003 11.7574 19.9953 12.4868 19.9776 13.216L19.9716 13.41C19.9636 13.635 19.9536 13.856 19.9416 14.122C19.8916 15.187 19.7216 15.912 19.4756 16.55C19.2248 17.2175 18.8313 17.8223 18.3226 18.322C17.8228 18.8307 17.2181 19.2242 16.5506 19.475C15.9136 19.722 15.1876 19.89 14.1236 19.94L13.4116 19.97L13.2176 19.976C12.7246 19.99 12.1536 19.997 11.0286 19.999L10.2826 20H8.97357C8.24383 20.0026 7.51409 19.9949 6.78457 19.977L6.59057 19.971C6.35318 19.962 6.11584 19.9517 5.87857 19.94C4.81457 19.89 4.08857 19.722 3.45057 19.475C2.7834 19.2241 2.17901 18.8306 1.67957 18.322C1.17051 17.8224 0.776678 17.2176 0.525569 16.55C0.278569 15.913 0.110569 15.187 0.0605687 14.122L0.0305688 13.41L0.0255689 13.216C0.00713493 12.4868 -0.00119929 11.7574 0.000568797 11.028V8.972C-0.0021991 8.2426 0.00513501 7.5132 0.0225689 6.784L0.0295688 6.59C0.0375688 6.365 0.0475688 6.144 0.0595688 5.878C0.109569 4.813 0.277569 4.088 0.524569 3.45C0.776263 2.7822 1.17079 2.17744 1.68057 1.678C2.17972 1.16955 2.78376 0.776074 3.45057 0.525C4.08857 0.278 4.81357 0.11 5.87857 0.0599999C6.14457 0.0479999 6.36657 0.038 6.59057 0.03L6.78457 0.0239999C7.51376 0.00623271 8.24316 -0.0014347 8.97257 0.000999928L11.0286 0ZM10.0006 5C8.67449 5 7.40272 5.52678 6.46503 6.46447C5.52735 7.40215 5.00057 8.67392 5.00057 10C5.00057 11.3261 5.52735 12.5979 6.46503 13.5355C7.40272 14.4732 8.67449 15 10.0006 15C11.3267 15 12.5984 14.4732 13.5361 13.5355C14.4738 12.5979 15.0006 11.3261 15.0006 10C15.0006 8.67392 14.4738 7.40215 13.5361 6.46447C12.5984 5.52678 11.3267 5 10.0006 5ZM10.0006 7C10.3945 6.99993 10.7847 7.07747 11.1487 7.22817C11.5127 7.37887 11.8434 7.5998 12.122 7.87833C12.4007 8.15686 12.6217 8.48754 12.7725 8.85149C12.9233 9.21544 13.001 9.60553 13.0011 9.9995C13.0011 10.3935 12.9236 10.7836 12.7729 11.1476C12.6222 11.5116 12.4013 11.8423 12.1227 12.121C11.8442 12.3996 11.5135 12.6206 11.1496 12.7714C10.7856 12.9223 10.3955 12.9999 10.0016 13C9.20592 13 8.44286 12.6839 7.88025 12.1213C7.31764 11.5587 7.00157 10.7956 7.00157 10C7.00157 9.20435 7.31764 8.44129 7.88025 7.87868C8.44286 7.31607 9.20592 7 10.0016 7M15.2516 3.5C14.92 3.5 14.6021 3.6317 14.3677 3.86612C14.1333 4.10054 14.0016 4.41848 14.0016 4.75C14.0016 5.08152 14.1333 5.39946 14.3677 5.63388C14.6021 5.8683 14.92 6 15.2516 6C15.5831 6 15.901 5.8683 16.1355 5.63388C16.3699 5.39946 16.5016 5.08152 16.5016 4.75C16.5016 4.41848 16.3699 4.10054 16.1355 3.86612C15.901 3.6317 15.5831 3.5 15.2516 3.5Z"
+                  fill="#291E1E"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_21_3882">
+                  <rect width="20" height="20" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            {{ selectedGroupItem?.instagram }}
+          </a>
+          <a :href="selectedGroupItem?.telegram" class="btn btn-outline-rounded">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_21_3889)">
+                <path
+                  d="M19.9362 3.51976L16.9062 17.7048C16.6802 18.7038 16.1002 18.9288 15.2622 18.4778L10.7172 15.1258L8.49216 17.2528C8.26716 17.4788 8.04116 17.7048 7.52516 17.7048L7.88016 13.0298L16.3582 5.32576C16.7122 4.97076 16.2612 4.84176 15.8102 5.13276L5.26916 11.7728L0.723157 10.3868C-0.275843 10.0648 -0.275843 9.38676 0.949157 8.93676L18.6142 2.06976C19.4842 1.81176 20.2262 2.26376 19.9362 3.51976Z"
+                  fill="#291E1E"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_21_3889">
+                  <rect width="20" height="20" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            {{ selectedGroupItem?.telegram }}
+          </a>
+        </div>
+      </div>
+    </BaseBottomSheet>
+
     <BaseBottomSheet
       title=""
       :model-value="_showDeleteModal"
@@ -237,6 +327,7 @@ onMounted(() => {
   &__content {
     overflow: auto;
     padding-bottom: 20px;
+
     &-header {
       display: flex;
       flex-direction: column;
@@ -336,17 +427,20 @@ onMounted(() => {
       }
     }
   }
+
   &__last-events {
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
+
   &__last-event {
     display: flex;
     flex-direction: column;
     padding: 12px;
     border-radius: 12px;
     border: 2px solid #000;
+
     .last-event__item {
       display: flex;
       flex-direction: column;
@@ -359,6 +453,7 @@ onMounted(() => {
       &:first-child {
         padding-top: 0;
       }
+
       &:last-child {
         border-bottom: none;
         padding-bottom: 0;
@@ -370,8 +465,9 @@ onMounted(() => {
           line-height: 22px; /* 137.5% */
         }
       }
+
       &-title {
-        color: var(--primary-dark, #291E1E);
+        color: var(--primary-dark, #291e1e);
 
         /* Caption */
         font-family: Manrope;
@@ -391,12 +487,12 @@ onMounted(() => {
           align-items: center;
           justify-content: center;
           border-radius: 10px;
-          background: var(--primary-accent, #E75010);
+          background: var(--primary-accent, #e75010);
         }
       }
 
       &-description {
-        color: var(--primary-dark, #291E1E);
+        color: var(--primary-dark, #291e1e);
 
         /* Text Bold */
         font-family: Manrope;
@@ -408,9 +504,8 @@ onMounted(() => {
       }
 
       &-friends {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
         gap: 8px;
         margin-top: 8px;
         width: 100%;
@@ -418,7 +513,7 @@ onMounted(() => {
         .user-avatar {
           width: 54px;
           height: 55px;
-          border: 2px solid var(--primary-accent, #E75010);
+          border: 2px solid var(--primary-accent, #e75010);
           border-radius: 100%;
           overflow: hidden;
           background: var(--primary-gray);
