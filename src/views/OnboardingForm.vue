@@ -305,8 +305,8 @@ const questions = ref<Question[]>([
       if (questions.value[6].valid) {
         await userService
           .updateUserDetails({
-            instagram: `https://instagram.com/${formValues.value[FormKeys.instagram]}`,
-            telegramm: `https://t.me/${formValues.value[FormKeys.telegram]}`,
+            instagram: formValues.value[FormKeys.instagram],
+            telegramm: formValues.value[FormKeys.telegram],
           })
           .then(() => {
             changePosition(8)
@@ -530,18 +530,8 @@ onMounted(() => {
   if (store.getPosition === 0) {
     createUserService().changePosition(1)
   }
-  const instagramValue = store.getUserAnket.instagram.replace(
-    'https://instagram.com/',
-    ''
-  )
-  const telegrammValue = store.getUserAnket.telegramm.replace(
-    'https://t.me/',
-    ''
-  )
   setValues({
     ...store.getUserAnket,
-    [FormKeys.instagram]: instagramValue,
-    [FormKeys.telegram]: telegrammValue,
   })
 })
 </script>

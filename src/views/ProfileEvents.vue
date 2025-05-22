@@ -210,7 +210,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="user-socials">
-          <a v-if="selectedGroupItem?.instagram" :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.instagram" :href="`https://instagram.com/${selectedGroupItem.instagram}`" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -232,7 +232,7 @@ onMounted(() => {
             </svg>
             {{ selectedGroupItem?.instagram }}
           </a>
-          <a v-if="selectedGroupItem?.telegram" :href="selectedGroupItem?.telegram"  target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.telegram" :href="`https://t.me/${selectedGroupItem.telegram}`"  target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

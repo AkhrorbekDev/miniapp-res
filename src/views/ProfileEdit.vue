@@ -55,12 +55,7 @@ const updateAboutSelf = (e) => {
 }
 const updateSocials = (e, key) => {
   let value = e
-  if (key === 'instagram') {
-    value = `https://instagram.com/${e}`
-  } else if (key === 'telegramm') {
-    value = `https://t.me/${e}`
-  }
-  user.value[key] = e
+  user.value[key] = value
   editedValues.value[key] = value
 }
 const imagerUploading = ref(false)
@@ -277,18 +272,8 @@ const saveChanges = () => {
     })
 }
 onMounted(() => {
-  const instagramValue = store.getUserAnket.instagram.replace(
-    'https://instagram.com/',
-    ''
-  )
-  const telegrammValue = store.getUserAnket.telegramm.replace(
-    'https://t.me/',
-    ''
-  )
   user.value = {
     ...store.getUserAnket,
-    instagram: instagramValue,
-    telegramm: telegrammValue,
   }
   dictionaries.value = store.getDictionaries
 })

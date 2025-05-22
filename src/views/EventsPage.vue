@@ -304,15 +304,15 @@ const showBottomSheet = () => {
 }
 
 function isUnder24Hours(isoDateStr) {
-  const MSK_OFFSET = 3 * 60; // в минутах
-  const nowUTC = new Date(new Date().toISOString()); // текущее время в UTC
-  const nowMSK = new Date(nowUTC.getTime() + MSK_OFFSET * 60 * 1000);
+  const MSK_OFFSET = 3 * 60 // в минутах
+  const nowUTC = new Date(new Date().toISOString()) // текущее время в UTC
+  const nowMSK = new Date(nowUTC.getTime() + MSK_OFFSET * 60 * 1000)
 
-  const target = new Date(isoDateStr);
-  const diffInMs = target.getTime() - nowMSK.getTime();
-  const diffInHours = diffInMs / (1000 * 60 * 60);
+  const target = new Date(isoDateStr)
+  const diffInMs = target.getTime() - nowMSK.getTime()
+  const diffInHours = diffInMs / (1000 * 60 * 60)
 
-  return diffInHours < 24;
+  return diffInHours < 24
 }
 
 const showControls = () => {
@@ -620,7 +620,12 @@ onMounted(async () => {
             <div class="user-event__item">
               <span class="label">Локация</span>
               <span class="info">
-                {{ userEventStats?.restaurant?.status ? userEventStats?.restaurant?.restaurant_name : 'Будет известна за 24 часа до ужина'  }}</span>
+                {{
+                  userEventStats?.restaurant?.status
+                    ? userEventStats?.restaurant?.restaurant_name
+                    : 'Будет известна за 24 часа до ужина'
+                }}</span
+              >
             </div>
           </div>
         </div>
@@ -716,7 +721,7 @@ onMounted(async () => {
                     class="event-group__item"
                     @click="showGroupItem(item)"
                   >
-                    <img :src="('https://miniapp.forkies.ru/' + item.photo) || notProfile" alt="" />
+                    <img :src="'https://miniapp.forkies.ru/' + item.photo || notProfile" alt="" />
                   </div>
                 </div>
               </template>
@@ -1207,8 +1212,8 @@ onMounted(async () => {
             :modules="swiperModules"
             :navigation="true"
             :pagination="{
-            type: 'fraction',
-          }"
+              type: 'fraction',
+            }"
             :slides-per-view="1"
             :space-between="50"
           >
@@ -1231,9 +1236,7 @@ onMounted(async () => {
           </swiper>
         </div>
       </BaseDrawer>
-
     </teleport>
-
 
     <BaseBottomSheet
       title=""
@@ -1244,14 +1247,18 @@ onMounted(async () => {
         <div class="controls-modal__header">
           <div class="user-avatar">
             <img
-              :src="selectedGroupItem?.photo ? 'https://miniapp.forkies.ru/' + selectedGroupItem?.photo : notProfile"
+              :src="
+                selectedGroupItem?.photo
+                  ? 'https://miniapp.forkies.ru/' + selectedGroupItem?.photo
+                  : notProfile
+              "
               alt=""
             />
           </div>
           <p class="modal-title">
             {{ selectedGroupItem?.name }}
           </p>
-<!--          <p class="modal-description1">Журналист</p>-->
+          <!--          <p class="modal-description1">Журналист</p>-->
           <div class="user-about-self">
             <p class="modal-description">
               {{ selectedGroupItem?.about }}
@@ -1259,7 +1266,12 @@ onMounted(async () => {
           </div>
         </div>
         <div class="user-socials">
-          <a v-if="selectedGroupItem?.instagram" :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
+          <a
+            v-if="selectedGroupItem?.instagram"
+            :href="`https://instagram.com/${selectedGroupItem.instagram}`"
+            target="_blank"
+            class="btn btn-outline-rounded"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1281,7 +1293,12 @@ onMounted(async () => {
             </svg>
             {{ selectedGroupItem?.instagram }}
           </a>
-          <a v-if="selectedGroupItem?.telegramm" :href="selectedGroupItem?.telegramm" target="_blank" class="btn btn-outline-rounded">
+          <a
+            v-if="selectedGroupItem?.telegramm"
+            :href="`https://t.me/${selectedGroupItem.telegramm}`"
+            target="_blank"
+            class="btn btn-outline-rounded"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1337,7 +1354,6 @@ onMounted(async () => {
     bottom: 0;
     padding-bottom: 60px;
   }
-
 
   .user-event {
     overflow: auto;
