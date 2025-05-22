@@ -305,8 +305,8 @@ const questions = ref<Question[]>([
       if (questions.value[6].valid) {
         await userService
           .updateUserDetails({
-            instagram: formValues.value[FormKeys.instagram],
-            telegramm: formValues.value[FormKeys.telegram],
+            instagram: `https://instagram.com/${formValues.value[FormKeys.instagram]}`,
+            telegramm: `https://t.me/${formValues.value[FormKeys.telegram]}`,
           })
           .then(() => {
             changePosition(8)
