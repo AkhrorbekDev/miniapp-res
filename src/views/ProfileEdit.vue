@@ -54,17 +54,23 @@ const updateAboutSelf = (e) => {
   editedValues.value.about_myself = e
 }
 const updateSocials = (e, key) => {
+  let value = e
+  if (key === 'instagram') {
+    value = `https://instagram.com/${e}`
+  } else if (key === 'telegramm') {
+    value = `https://t.me/${e}`
+  }
   user.value[key] = e
-  editedValues.value[key] = e
+  editedValues.value[key] = value
 }
-
+const imagerUploading = ref(false)
 const uploadAvatar = (e) => {
   const file = e.target.files[0]
   const formData = new FormData()
   const tgWebApp = window.Telegram.WebApp
   formData.append('photo', file)
-  console.log(file)
   if (file) {
+    imagerUploading.value = true
     createUserService()
       .changeAvatar(formData)
       .then((res) => {
@@ -72,6 +78,9 @@ const uploadAvatar = (e) => {
       })
       .catch((err) => {
         tgWebApp.showAlert('Ошибка загрузки фото')
+      })
+      .finally(() => {
+        imagerUploading.value = false
       })
   }
 }
@@ -246,9 +255,9 @@ const isChanged = computed(() => {
 const saveChanges = () => {
   const values = {
     ...editedValues.value,
-    about_myself: user.value.about_myself,
-    instagram: user.value.instagram,
-    telegramm: user.value.telegramm,
+    about_myself: editedValues.value.about_myself,
+    instagram: editedValues.value.instagram,
+    telegramm: editedValues.value.telegramm,
   }
   delete values.photo
   const tgWebApp = window.Telegram.WebApp
@@ -268,7 +277,19 @@ const saveChanges = () => {
     })
 }
 onMounted(() => {
-  user.value = store.getUserAnket
+  const instagramValue = store.getUserAnket.instagram.replace(
+    'https://instagram.com/',
+    ''
+  )
+  const telegrammValue = store.getUserAnket.telegramm.replace(
+    'https://t.me/',
+    ''
+  )
+  user.value = {
+    ...store.getUserAnket,
+    instagram: instagramValue,
+    telegramm: telegrammValue,
+  }
   dictionaries.value = store.getDictionaries
 })
 </script>
@@ -313,7 +334,22 @@ onMounted(() => {
     <div class="profile-edit__content">
       <div class="profile-edit__content-header">
         <div class="user-avatar">
-          <img :src="'https://miniapp.forkies.ru/' + user.photo || notProfile" alt="Avatar" />
+          <div v-if="imagerUploading" class="loader">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M10.72,19.9a8,8,0,0,1-6.5-9.79A7.77,7.77,0,0,1,10.4,4.16a8,8,0,0,1,9.49,6.52A1.54,1.54,0,0,0,21.38,12h.13a1.37,1.37,0,0,0,1.38-1.54,11,11,0,1,0-12.7,12.39A1.54,1.54,0,0,0,12,21.34h0A1.47,1.47,0,0,0,10.72,19.9Z"
+              >
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  dur="0.75s"
+                  values="0 12 12;360 12 12"
+                  repeatCount="indefinite"
+                />
+              </path>
+            </svg>
+          </div>
+          <img :src="user.photo ? 'https://miniapp.forkies.ru/' + user.photo : notProfile" alt="Avatar" />
         </div>
         <div class="user-name">
           <p>
@@ -467,8 +503,9 @@ onMounted(() => {
             <p>Социальные сети</p>
           </div>
           <SocialsStep
-            :instagram="user.instagram" :telegramm="user.telegramm"
-           @update:instagram="updateSocials($event, 'instagram')"
+            :instagram="user.instagram"
+            :telegramm="user.telegramm"
+            @update:instagram="updateSocials($event, 'instagram')"
             @update:telegramm="updateSocials($event, 'telegramm')"
           />
         </div>
@@ -639,6 +676,25 @@ onMounted(() => {
         overflow: hidden;
         margin-bottom: 8px;
         background: var(--primary-gray);
+        position: relative;
+
+
+        .loader {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          background: #11111190;
+          z-index: 10;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          svg path {
+            fill: var(--primary-accent);
+          }
+        }
 
         img {
           width: 100%;

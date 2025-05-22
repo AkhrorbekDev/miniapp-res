@@ -40,6 +40,7 @@ watchEffect(() => {
   }
   console.log('Route changed:', route.params.page)
 }, {})
+const mobileMenu = ref(null)
 onMounted(async () => {
   const tgWebApp = window.Telegram.WebApp
   tgWebApp.expand()
@@ -49,7 +50,7 @@ onMounted(async () => {
     const user = tgWebApp.initDataUnsafe.user
     await obtainToken({
       initData,
-      user
+      user,
     })
       .then((response) => {
         // tgWebApp.showAlert('Вы успешно авторизованы')
@@ -116,19 +117,18 @@ onMounted(async () => {
       <div class="main-container without-padding">
         <EventsPage v-if="$route.params.page === 'events-page'" />
         <ContactsPage v-if="$route.params.page === 'contacts-page'" />
-        <Transition name="page-drawer">
-          <ProfilePage v-if="$route.params.page === 'profile'" />
-        </Transition>
-        <Transition name="page-drawer">
+        <ProfilePage v-if="$route.params.page === 'profile'" />
+
+        <Transition name="page-drawer-top">
           <ProfileEdit v-if="$route.params.page2 === 'edit-profile'" />
         </Transition>
-        <Transition name="page-drawer">
+        <Transition name="page-drawer-top">
           <ProfileSettings v-if="$route.params.page2 === 'profile-settings'" />
         </Transition>
-        <Transition name="page-drawer">
+        <Transition name="page-drawer-top">
           <ProfileEvents v-if="$route.params.page2 === 'profile-events'" />
         </Transition>
-        <MobileMenu />
+        <MobileMenu ref="mobileMenu" />
       </div>
     </template>
   </template>
@@ -148,17 +148,23 @@ onMounted(async () => {
   align-items: center;
 }
 
-// Transition animations
+/* ✅ Обновлённые transition-классы для drawer */
 .page-drawer-enter-active,
 .page-drawer-leave-active {
   transition: transform 0.3s ease-out;
 }
 
-.page-drawer-enter-from,
-.page-drawer-leave-to {
+/* 👈 Вход слева (слева направо) */
+.page-drawer-enter-from {
   transform: translateX(100%);
 }
 
+/* 👉 Выход направо (из центра вправо) */
+.page-drawer-leave-to {
+  transform: translateX(-100%);
+}
+
+/* 🔄 Анимация затемнения оверлея */
 .page-drawer-enter-active .page-drawer-overlay,
 .page-drawer-leave-active .page-drawer-overlay {
   transition: opacity 0.3s ease-out;
@@ -166,6 +172,27 @@ onMounted(async () => {
 
 .page-drawer-enter-from .page-drawer-overlay,
 .page-drawer-leave-to .page-drawer-overlay {
+  opacity: 0;
+}
+
+// Transition animations top
+.page-drawer-top-enter-active,
+.page-drawer-top-leave-active {
+  transition: transform 0.3s ease-out;
+}
+
+.page-drawer-top-enter-from,
+.page-drawer-top-leave-to {
+  transform: translateX(100%);
+}
+
+.page-drawer-top-enter-active .page-drawer-top-overlay,
+.page-drawer-top-leave-active .page-drawer-top-overlay {
+  transition: opacity 0.3s ease-out;
+}
+
+.page-drawer-top-enter-from .page-drawer-top-overlay,
+.page-drawer-top-leave-to .page-drawer-top-overlay {
   opacity: 0;
 }
 </style>

@@ -34,7 +34,7 @@ const closeDeleteModal = () => {
        // tgWebApp.showAlert('Вы успешно авторизованы')
      })
      .catch((error) => {
-       tgWebApp.showAlert('Ошибка авторизации')
+       tgWebApp.showAlert('Ошибка авторизации: ' + error)
      })
    store.deleteUser()
     router.push({

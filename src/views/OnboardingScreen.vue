@@ -63,9 +63,9 @@ const setActiveSlideIndicatortimer = () => {
     indicatorWidth.value += perInterValWidth
     if (indicatorWidth.value >= 100) {
       clearInterval(interval)
-      if (activeSlide.value < slides.value.length - 1) {
-        nextSlide()
-      }
+      // if (activeSlide.value < slides.value.length - 1) {
+      //   nextSlide()
+      // }
     }
   }, 1)
 }

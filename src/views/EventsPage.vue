@@ -1178,59 +1178,62 @@ onMounted(async () => {
         <button class="btn btn-primary" @click="closeDiscountModal">Окей</button>
       </template>
     </BaseBottomSheet>
-
-    <BaseDrawer class="event-game-drawer" v-model="showGameDrawer" :show-footer="false">
-      <template #navbar>
-        <div class="event-game__navbar">
-          <button @click="showGameDrawer = false">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path
-                d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z"
-                fill="#FCF9EA"
-              />
-              <path
-                d="M16.7364 7.2636C17.0879 7.61508 17.0879 8.18492 16.7364 8.5364L13.273 12L16.7364 15.4636C17.0586 15.7858 17.0854 16.2915 16.817 16.6442L16.7364 16.7364C16.3849 17.0879 15.8151 17.0879 15.4636 16.7364L12 13.273L8.5364 16.7364C8.18492 17.0879 7.61508 17.0879 7.2636 16.7364C6.91213 16.3849 6.91213 15.8151 7.2636 15.4636L10.727 12L7.2636 8.5364C6.94142 8.21421 6.91457 7.70853 7.18306 7.35577L7.2636 7.2636C7.61508 6.91213 8.18492 6.91213 8.5364 7.2636L12 10.727L15.4636 7.2636C15.8151 6.91213 16.3849 6.91213 16.7364 7.2636Z"
-                fill="#E75010"
-              />
-            </svg>
-          </button>
-        </div>
-      </template>
-      <div class="event-game">
-        <swiper
-          :modules="swiperModules"
-          :navigation="true"
-          :pagination="{
+    <teleport to="body">
+      <BaseDrawer class="event-game-drawer" v-model="showGameDrawer" :show-footer="false">
+        <template #navbar>
+          <div class="event-game__navbar">
+            <button @click="showGameDrawer = false">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 24C18.6274 24 24 18.6274 24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 18.6274 5.37258 24 12 24Z"
+                  fill="#FCF9EA"
+                />
+                <path
+                  d="M16.7364 7.2636C17.0879 7.61508 17.0879 8.18492 16.7364 8.5364L13.273 12L16.7364 15.4636C17.0586 15.7858 17.0854 16.2915 16.817 16.6442L16.7364 16.7364C16.3849 17.0879 15.8151 17.0879 15.4636 16.7364L12 13.273L8.5364 16.7364C8.18492 17.0879 7.61508 17.0879 7.2636 16.7364C6.91213 16.3849 6.91213 15.8151 7.2636 15.4636L10.727 12L7.2636 8.5364C6.94142 8.21421 6.91457 7.70853 7.18306 7.35577L7.2636 7.2636C7.61508 6.91213 8.18492 6.91213 8.5364 7.2636L12 10.727L15.4636 7.2636C15.8151 6.91213 16.3849 6.91213 16.7364 7.2636Z"
+                  fill="#E75010"
+                />
+              </svg>
+            </button>
+          </div>
+        </template>
+        <div class="event-game">
+          <swiper
+            :modules="swiperModules"
+            :navigation="true"
+            :pagination="{
             type: 'fraction',
           }"
-          :slides-per-view="1"
-          :space-between="50"
-        >
-          <swiper-slide>
-            <div class="event-game__item">
-              <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
-            </div>
-          </swiper-slide>
-          <swiper-slide>
-            <div class="event-game__item">
-              <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
-            </div>
-          </swiper-slide>
-          <swiper-slide>
-            <div class="event-game__item">
-              <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
-            </div>
-          </swiper-slide>
-          ...
-        </swiper>
-      </div>
-    </BaseDrawer>
+            :slides-per-view="1"
+            :space-between="50"
+          >
+            <swiper-slide>
+              <div class="event-game__item">
+                <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+              </div>
+            </swiper-slide>
+            <swiper-slide>
+              <div class="event-game__item">
+                <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+              </div>
+            </swiper-slide>
+            <swiper-slide>
+              <div class="event-game__item">
+                <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+              </div>
+            </swiper-slide>
+            ...
+          </swiper>
+        </div>
+      </BaseDrawer>
+
+    </teleport>
+
 
     <BaseBottomSheet
       title=""
@@ -1256,7 +1259,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="user-socials">
-          <a :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.instagram" :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1278,7 +1281,7 @@ onMounted(async () => {
             </svg>
             {{ selectedGroupItem?.instagram }}
           </a>
-          <a :href="selectedGroupItem?.telegramm" target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.telegramm" :href="selectedGroupItem?.telegramm" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1335,11 +1338,6 @@ onMounted(async () => {
     padding-bottom: 60px;
   }
 
-  .event-game {
-    background: var(--primary-accent, #fcf9ea);
-    width: 100%;
-    height: 100%;
-  }
 
   .user-event {
     overflow: auto;
@@ -1911,6 +1909,11 @@ onMounted(async () => {
 .event-game-drawer {
   padding: 0 !important;
   --swiper-navigation-top-offset: calc(100% - 20%);
+  .event-game {
+    background: var(--primary-accent, #fcf9ea);
+    width: 100%;
+    height: 100%;
+  }
 
   .swiper {
     width: 100%;

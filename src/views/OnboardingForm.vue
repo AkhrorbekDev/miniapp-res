@@ -521,12 +521,6 @@ const setValues = (data) => {
     }
   }
 
-  console.log(
-    data[FormKeys.event_language],
-    data[FormKeys.food_restrictions],
-    data[FormKeys.budget],
-  )
-
   formValues.value[FormKeys.event_language] = data[FormKeys.event_language] || []
   formValues.value[FormKeys.food_restrictions] = data[FormKeys.food_restrictions] || []
   formValues.value[FormKeys.budget] = data[FormKeys.budget] || []
@@ -536,8 +530,19 @@ onMounted(() => {
   if (store.getPosition === 0) {
     createUserService().changePosition(1)
   }
-
-  setValues(store.getUserAnket)
+  const instagramValue = store.getUserAnket.instagram.replace(
+    'https://instagram.com/',
+    ''
+  )
+  const telegrammValue = store.getUserAnket.telegramm.replace(
+    'https://t.me/',
+    ''
+  )
+  setValues({
+    ...store.getUserAnket,
+    [FormKeys.instagram]: instagramValue,
+    [FormKeys.telegram]: telegrammValue,
+  })
 })
 </script>
 

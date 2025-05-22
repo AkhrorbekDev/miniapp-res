@@ -24,10 +24,6 @@ const telegramUsername = computed({
   set: (value) => emit('update:telegramm', `${value}`),
 })
 
-const test = (e) => {
-  console.log('test', e.target)
-}
-
 </script>
 
 <template>

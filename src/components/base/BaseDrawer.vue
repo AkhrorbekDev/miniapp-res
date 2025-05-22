@@ -26,9 +26,9 @@ const closeDrawer = () => {
 </script>
 
 <template>
-  <Transition name="page-drawer">
-    <div v-if="modelValue" class="base-drawer">
-      <div v-if="showHeader" class="base-drawer__navbar">
+    <Transition name="page-drawer">
+      <div v-if="modelValue" class="base-drawer">
+        <div v-if="showHeader" class="base-drawer__navbar">
           <slot name="navbar">
             <button @click="closeDrawer">
               <svg
@@ -66,17 +66,17 @@ const closeDrawer = () => {
               </svg>
             </button>
           </slot>
-      </div>
+        </div>
 
-      <div class="base-drawer__content">
-        <slot />
-      </div>
+        <div class="base-drawer__content">
+          <slot />
+        </div>
 
-      <div v-if="showFooter" class="base-drawer__footer">
-        <button class="btn btn-primary" @click="closeDrawer">Сохранить</button>
+        <div v-if="showFooter" class="base-drawer__footer">
+          <button class="btn btn-primary" @click="closeDrawer">Сохранить</button>
+        </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
 </template>
 
 <style scoped lang="scss">

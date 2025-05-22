@@ -164,10 +164,10 @@ onMounted(() => {
               </p>
               <div class="last-event__item-friends">
                 <div
-                  @click="openGroupItemModal"
                   v-for="group in event.group"
                   :key="group.username"
                   class="user-avatar"
+                  @click="openGroupItemModal(group)"
                 >
                   <img
                     :src="
@@ -210,7 +210,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="user-socials">
-          <a :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.instagram" :href="selectedGroupItem?.instagram" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -232,7 +232,7 @@ onMounted(() => {
             </svg>
             {{ selectedGroupItem?.instagram }}
           </a>
-          <a :href="selectedGroupItem?.telegramm"  target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.telegram" :href="selectedGroupItem?.telegram"  target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -252,7 +252,7 @@ onMounted(() => {
                 </clipPath>
               </defs>
             </svg>
-            {{ selectedGroupItem?.telegramm }}
+            {{ selectedGroupItem?.telegram }}
           </a>
         </div>
       </div>

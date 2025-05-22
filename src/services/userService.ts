@@ -43,6 +43,7 @@ export const createUserService = () => {
     deleteUser: () => api('/account/delete/', {
       method: 'DELETE'
     }),
+    getUserContacts: () => api('/user/contacts/'),
     getUserEventStats: (eventId?: number) => api(`/events/status/`),
   }
 }
