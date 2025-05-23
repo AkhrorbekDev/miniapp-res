@@ -472,6 +472,8 @@ const submitEmergencyReason = (value) => {
       .catch((err) => {
         tgWebApp.showAlert(`Ошибка отмены бронирования: ${err.data.detail}`)
       })
+  } else {
+    showInfoModal.value = false
   }
 }
 
