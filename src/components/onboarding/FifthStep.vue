@@ -45,7 +45,7 @@ const updateModelValue = (newValue: string) => {
 <template>
   <div class="onboarding-form_second-step">
     <div class="opinion-rate-info">
-      <span>Я основываю свое мнение на логике и фактах</span>
+      <span>Нужно время, чтобы почувствовать себя комфортно</span>
     </div>
     <div
       class="buttons"
@@ -68,7 +68,7 @@ const updateModelValue = (newValue: string) => {
       ></button>
     </div>
     <div class="opinion-rate-info">
-      <span>Я основываю свое мнение на эмоциях и чувствах</span>
+      <span>Быстро нахожу общий язык и завожу разговоры</span>
     </div>
   </div>
 </template>

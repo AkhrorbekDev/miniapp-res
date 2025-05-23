@@ -497,82 +497,82 @@ onMounted(() => {
             @update:telegramm="updateSocials($event, 'telegramm')"
           />
         </div>
-        <div class="profile-edit__content-item">
-          <div class="title">
-            <p>Предпочтения</p>
-          </div>
-          <div class="links">
-            <div @click="showEdit('budget')" class="link">
-              <div class="label">Бюджет</div>
+<!--        <div class="profile-edit__content-item">-->
+<!--          <div class="title">-->
+<!--            <p>Предпочтения</p>-->
+<!--          </div>-->
+<!--          <div class="links">-->
+<!--            <div @click="showEdit('budget')" class="link">-->
+<!--              <div class="label">Бюджет</div>-->
 
-              <div class="text">
-                <p>
-                  {{ userInfos.budget?.name || '-' }}
-                </p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
-                    fill="#291E1E"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div @click="showEdit('food_restrictions')" class="link">
-              <div class="label">Ограничения в еде</div>
+<!--              <div class="text">-->
+<!--                <p>-->
+<!--                  {{ userInfos.budget?.name || '-' }}-->
+<!--                </p>-->
+<!--                <svg-->
+<!--                  xmlns="http://www.w3.org/2000/svg"-->
+<!--                  width="20"-->
+<!--                  height="20"-->
+<!--                  viewBox="0 0 20 20"-->
+<!--                  fill="none"-->
+<!--                >-->
+<!--                  <path-->
+<!--                    fill-rule="evenodd"-->
+<!--                    clip-rule="evenodd"-->
+<!--                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"-->
+<!--                    fill="#291E1E"-->
+<!--                  />-->
+<!--                </svg>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div @click="showEdit('food_restrictions')" class="link">-->
+<!--              <div class="label">Ограничения в еде</div>-->
 
-              <div class="text">
-                <p>
-                  {{ userInfos.foods }}
-                </p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
-                    fill="#291E1E"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div @click="showEdit('event_languages')" class="link">
-              <div class="label">Язык</div>
+<!--              <div class="text">-->
+<!--                <p>-->
+<!--                  {{ userInfos.foods }}-->
+<!--                </p>-->
+<!--                <svg-->
+<!--                  xmlns="http://www.w3.org/2000/svg"-->
+<!--                  width="20"-->
+<!--                  height="20"-->
+<!--                  viewBox="0 0 20 20"-->
+<!--                  fill="none"-->
+<!--                >-->
+<!--                  <path-->
+<!--                    fill-rule="evenodd"-->
+<!--                    clip-rule="evenodd"-->
+<!--                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"-->
+<!--                    fill="#291E1E"-->
+<!--                  />-->
+<!--                </svg>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div @click="showEdit('event_languages')" class="link">-->
+<!--              <div class="label">Язык</div>-->
 
-              <div class="text">
-                <p>
-                  {{ userInfos.languages || '-' }}
-                </p>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
-                    fill="#291E1E"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+<!--              <div class="text">-->
+<!--                <p>-->
+<!--                  {{ userInfos.languages || '-' }}-->
+<!--                </p>-->
+<!--                <svg-->
+<!--                  xmlns="http://www.w3.org/2000/svg"-->
+<!--                  width="20"-->
+<!--                  height="20"-->
+<!--                  viewBox="0 0 20 20"-->
+<!--                  fill="none"-->
+<!--                >-->
+<!--                  <path-->
+<!--                    fill-rule="evenodd"-->
+<!--                    clip-rule="evenodd"-->
+<!--                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"-->
+<!--                    fill="#291E1E"-->
+<!--                  />-->
+<!--                </svg>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
     </div>
     <div class="profile-edit__footer">

@@ -56,6 +56,7 @@ const formValues = ref({
   [FormKeys.event_language]: [],
   [FormKeys.budget]: null,
 })
+const router = useRouter()
 const activeSlide = ref(0)
 const showPreferences = ref(false)
 const store = useOnboardingStore()
@@ -402,15 +403,23 @@ const questions = ref<Question[]>([
         .updateUserDetails({
           [FormKeys.about_myself]: formValues.value[FormKeys.about_myself],
         })
-        .then(() => {
-          changePosition(10)
-          result = true
+        .then(async () => {
+          changePosition(11)
+          await createUserService()
+            .getUserAnket()
+            .then((response) => {
+              store.setUserAnket(response)
+            })
+          router.push({
+            params: {
+              page: 'events-page',
+            },
+          })
         })
         .catch((error) => {
           if (tgWebApp) {
             tgWebApp.showAlert(error.message || 'Произошла ошибка')
           }
-          result = false
         })
       return Promise.resolve(result)
     },
