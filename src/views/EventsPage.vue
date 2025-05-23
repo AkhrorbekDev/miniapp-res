@@ -470,7 +470,7 @@ const submitEmergencyReason = (value) => {
         getUserEvent()
       })
       .catch((err) => {
-        tgWebApp.showAlert('Ошибка отмены бронирования')
+        tgWebApp.showAlert(`Ошибка отмены бронирования: ${err.data.detail}`)
       })
   }
 }
