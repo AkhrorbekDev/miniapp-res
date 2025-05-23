@@ -387,8 +387,13 @@ const selectedEventLocation = computed(() => {
 const cancelReasons = ref([])
 
 const showChangeDate = () => {
-  showEventChangeDate.value = true
-  showEventControls.value = false
+  if (isUnder24Hours(userEvent.value.event_date)) {
+    showInfoModal.value = true
+    showEventControls.value = false
+  } else {
+    showEventChangeDate.value = true
+    showEventControls.value = false
+  }
 }
 
 const cancelEvent = () => {
