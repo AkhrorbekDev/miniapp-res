@@ -9,6 +9,7 @@ const imagerUploading = ref(false)
 const uploadPhoto = (e) => {
   const file = e.target.files[0]
   const formData = new FormData()
+  const tgWebApp = window.Telegram.WebApp
   formData.append('photo', file)
   if (file) {
     imagerUploading.value = true
@@ -19,6 +20,7 @@ const uploadPhoto = (e) => {
         emit('update:modelValue', res.photo)
       })
       .catch((err) => {
+        tgWebApp.showAlert('Ошибка загрузки фото')
         console.error(err)
       })
       .finally(() => {

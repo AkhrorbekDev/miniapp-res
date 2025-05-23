@@ -70,6 +70,9 @@ const uploadAvatar = (e) => {
       .changeAvatar(formData)
       .then((res) => {
         user.value.photo = res.photo
+        store.setUserAnket({
+          ...user.value,
+        })
       })
       .catch((err) => {
         tgWebApp.showAlert('Ошибка загрузки фото')

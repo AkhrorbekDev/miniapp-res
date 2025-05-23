@@ -369,6 +369,9 @@ const questions = ref<Question[]>([
     key: FormKeys.photo,
     submit: async function () {
       changePosition(9)
+      store.setUserAnket({
+        [FormKeys.photo]: formValues.value[FormKeys.photo],
+      })
       return Promise.resolve(questions.value[7].valid)
     },
 
@@ -453,13 +456,13 @@ const prevSlide = () => {
         [FormKeys.food_restrictions]: formValues.value[FormKeys.food_restrictions],
         [FormKeys.event_language]: formValues.value[FormKeys.event_language],
         [FormKeys.budget]: formValues.value[FormKeys.budget],
-        [questions.value[activeSlide.value].key]: formValues.value[questions.value[activeSlide.value].key],
+        [questions.value[activeSlide.value].key]:
+          formValues.value[questions.value[activeSlide.value].key],
       })
     }
     return
   }
   if (activeSlide.value > 0) {
-
     if (questions.value[activeSlide.value - 1].key === FormKeys.socials) {
       formValues.value[FormKeys.instagram] = null
       formValues.value[FormKeys.telegram] = null
@@ -470,10 +473,10 @@ const prevSlide = () => {
     } else {
       if (activeSlide.value - 1 !== 0) {
         formValues.value[questions.value[activeSlide.value - 1].key] = null
-
       }
       userService.updateUserDetails({
-        [questions.value[activeSlide.value - 1].key]: formValues.value[questions.value[activeSlide.value - 1].key],
+        [questions.value[activeSlide.value - 1].key]:
+          formValues.value[questions.value[activeSlide.value - 1].key],
       })
     }
 
