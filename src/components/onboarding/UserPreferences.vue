@@ -124,8 +124,13 @@ const showConfirm = () => {
       event_languages: props.modelValue.event_languages,
       food_restrictions: props.modelValue.food_restrictions,
       event_budget: props.modelValue.event_budget,
-    }).then(() => {
+    }).then(async () => {
       changeUserPosition()
+      await createUserService()
+        .getUserAnket()
+        .then((response) => {
+          store.setUserAnket(response)
+        })
       router.push({
         params: {
           page: 'events-page',
