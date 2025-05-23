@@ -1274,8 +1274,8 @@ onMounted(async () => {
         </div>
         <div class="user-socials">
           <a
-            v-if="selectedGroupItem?.instagram"
-            :href="`https://instagram.com/${selectedGroupItem.instagram}`"
+            v-if="selectedGroupItem?.instagramm"
+            :href="`https://instagram.com/${selectedGroupItem.instagramm}`"
             target="_blank"
             class="btn btn-outline-rounded"
           >
@@ -1298,7 +1298,7 @@ onMounted(async () => {
                 </clipPath>
               </defs>
             </svg>
-            {{ selectedGroupItem?.instagram }}
+            {{ selectedGroupItem?.instagramm }}
           </a>
           <a
             v-if="selectedGroupItem?.telegramm"

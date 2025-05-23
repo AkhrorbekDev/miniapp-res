@@ -210,7 +210,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="user-socials">
-          <a v-if="selectedGroupItem?.instagram" :href="`https://instagram.com/${selectedGroupItem.instagram}`" target="_blank" class="btn btn-outline-rounded">
+          <a v-if="selectedGroupItem?.instagramm" :href="`https://instagram.com/${selectedGroupItem.instagramm}`" target="_blank" class="btn btn-outline-rounded">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -230,7 +230,7 @@ onMounted(() => {
                 </clipPath>
               </defs>
             </svg>
-            {{ selectedGroupItem?.instagram }}
+            {{ selectedGroupItem?.instagramm }}
           </a>
           <a v-if="selectedGroupItem?.telegram" :href="`https://t.me/${selectedGroupItem.telegram}`"  target="_blank" class="btn btn-outline-rounded">
             <svg
