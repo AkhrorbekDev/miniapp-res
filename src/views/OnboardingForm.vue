@@ -492,7 +492,7 @@ const setValues = (data) => {
     if (questions.value[i].key === FormKeys.socials) {
       formValues.value[FormKeys.instagram] = data[FormKeys.instagram] || ''
       formValues.value[FormKeys.telegram] = data[FormKeys.telegram] || ''
-      if (!formValues.value.instagram || !formValues.value[FormKeys.telegram]) {
+      if ((!formValues.value.instagram || !formValues.value[FormKeys.telegram]) && store.getPosition === 7) {
         value = false
       } else {
         value = true
@@ -503,10 +503,10 @@ const setValues = (data) => {
         value = ''
       }
     }
-    if (i === 0 && !data[questions.value[i + 1].key]) {
-      foudnPosition = true
-      activeSlide.value = i
-    }
+    // if (i === 0 && !data[questions.value[i + 1].key]) {
+    //   foudnPosition = true
+    //   activeSlide.value = i
+    // }
     questions.value[i].valid = !!value
     if (questions.value[i].key === FormKeys.about_myself) {
       questions.value[i].valid = true
