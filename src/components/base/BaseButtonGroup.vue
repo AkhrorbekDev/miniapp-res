@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import BaseRadio from '@/components/base/BaseRadio.vue'
+import BaseCheckbox from '@/components/base/BaseCheckbox.vue'
+import { onMounted, ref } from 'vue'
 import { useOnboardingStore } from '@/stores/onboarding.ts'
 
-
-defineProps({
+const props = defineProps({
   modelValue: {
-    type: String || Number || null,
-    default: '',
+    type: Array,
+    default: () => [],
   },
-  'onUpdate:modelValue': {
-    type: Function,
-    default: () => {},
+  title: {
+    type: String,
+    default: 'Редактирование профиля',
+  },
+  options: {
+    type: Array,
+    default: () => [],
   },
 })
-const store = useOnboardingStore()
-const dictionaries = computed(() =>store.getDictionaries)
-
 const emit = defineEmits(['update:modelValue'])
 
 const updateModelValue = (newValue: string) => {
@@ -24,27 +26,29 @@ const updateModelValue = (newValue: string) => {
 </script>
 
 <template>
-  <div v-if="dictionaries" class="onboarding-form_second-step">
+  <div class="base-checkbox-group">
     <button
-      v-for="familyStatus in dictionaries.relationship_statuses"
-      @click="updateModelValue(familyStatus.id)"
+      v-for="item in options"
+      @click="updateModelValue(item.id)"
       class="btn btn-outline"
       :class="{
-        active: familyStatus.id === $props.modelValue,
+        active: item.id === modelValue,
       }"
-      :key="familyStatus.id"
+      :key="item.id"
     >
-      <span class="btn__text">{{ familyStatus.name }}</span>
+      <span class="btn__text">{{ item.name }}</span>
     </button>
   </div>
 </template>
 
 <style scoped lang="scss">
-.onboarding-form_second-step {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 8px;
+.base-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
+
 
 .btn-outline {
   padding: 0;

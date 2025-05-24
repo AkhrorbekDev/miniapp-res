@@ -37,6 +37,7 @@ const closeDeleteModal = () => {
        tgWebApp.showAlert('Ошибка авторизации: ' + error)
      })
    store.deleteUser()
+   _showDeleteModal.value = false
     router.push({
       params: {
         page: 'wellcome-screen',

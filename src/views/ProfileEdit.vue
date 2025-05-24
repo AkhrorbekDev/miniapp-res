@@ -20,6 +20,7 @@ import BaseRadioGroup from '@/components/base/BaseRadioGroup.vue'
 import BaseCheckboxGroup from '@/components/base/BaseCheckboxGroup.vue'
 import FifthStep from '@/components/onboarding/FifthStep.vue'
 import SocialsStep from '@/components/onboarding/SocialsStep.vue'
+import BaseButtonGroup from '@/components/base/BaseButtonGroup.vue'
 
 const user = ref({})
 const dictionaries = ref({})
@@ -101,14 +102,46 @@ const userInfos = computed(() => {
     return acc
   }, '')
 
-  const userBudget = event_budgets.find((item) => {
+  const budget = event_budgets.find((item) => {
     return item.id === user.value.event_budget
   })
+
+  const childrenStatuses = store.getDictionaries.children_statuses.find((item) => {
+    return item.id === user.value.has_children
+  })
+
+  const occupations = store.getDictionaries.occupations.find((item) => {
+    return item.id === user.value.occupation
+  })
+
+  const participation = store.getDictionaries.participation.find((item) => {
+    return item.id === user.value.participation
+  })
+
+  const decisionBasis = store.getDictionaries.decision_basis.find((item) => {
+    return item.id === user.value.decision_basis
+  })
+
+  const conversationStyle = store.getDictionaries.conversation_style.find((item) => {
+    return item.id === user.value.conversation_style
+  })
+
+  const eveningScenarios = store.getDictionaries.evening_scenarios.find((item) => {
+    return item.id === user.value.evening_scenario
+  })
+
+
   return {
     relations,
     foods,
     languages,
-    budget: userBudget,
+    childrenStatuses,
+    occupations,
+    participation,
+    decisionBasis,
+    conversationStyle,
+    eveningScenarios,
+    budget,
   }
 })
 const closeDeleteModal = () => {
@@ -229,6 +262,96 @@ const showEdit = (type) => {
         editComponentBinds.value.modelValue = e
         editedValues.value.event_budget = e
         user.value.event_budget = e
+      },
+    })
+  } else if (type === 'children_statuses') {
+    editComponentBinds.value = {
+      modelValue: user.value.has_children,
+      key: user.value.has_children,
+    }
+    editComponent.value = h(BaseButtonGroup, {
+      options:  dictionaries.value.children_statuses,
+      class: 'profile-edit__content-item',
+      modelValue: user.value.has_children,
+      'onUpdate:modelValue': (e: string) => {
+        editComponentBinds.value.modelValue = e
+        editedValues.value.has_children = e
+        user.value.has_children = e
+      },
+    })
+  }else if (type === 'occupations') {
+    editComponentBinds.value = {
+      modelValue: user.value.occupation,
+      key: user.value.occupation,
+    }
+    editComponent.value = h(BaseButtonGroup, {
+      options:  dictionaries.value.occupations,
+      class: 'profile-edit__content-item',
+      modelValue: user.value.occupation,
+      'onUpdate:modelValue': (e: string) => {
+        editComponentBinds.value.modelValue = e
+        editedValues.value.occupation = e
+        user.value.occupation = e
+      },
+    })
+  }else if (type === 'participation') {
+    editComponentBinds.value = {
+      modelValue: user.value.participation,
+      key: user.value.participation,
+    }
+    editComponent.value = h(BaseButtonGroup, {
+      options:  dictionaries.value.participation,
+      class: 'profile-edit__content-item',
+      modelValue: user.value.participation,
+      'onUpdate:modelValue': (e: string) => {
+        editComponentBinds.value.modelValue = e
+        editedValues.value.participation = e
+        user.value.participation = e
+      },
+    })
+  }else if (type === 'decision_basis') {
+    editComponentBinds.value = {
+      modelValue: user.value.decision_basis,
+      key: user.value.decision_basis,
+    }
+    editComponent.value = h(BaseButtonGroup, {
+      options:  dictionaries.value.decision_basis,
+      class: 'profile-edit__content-item',
+      modelValue: user.value.decision_basis,
+      'onUpdate:modelValue': (e: string) => {
+        editComponentBinds.value.modelValue = e
+        editedValues.value.decision_basis = e
+        user.value.decision_basis = e
+      },
+    })
+  }else if (type === 'conversation_style') {
+    editComponentBinds.value = {
+      modelValue: user.value.conversation_style,
+      key: user.value.conversation_style,
+    }
+    editComponent.value = h(BaseButtonGroup, {
+      options:  dictionaries.value.conversation_style,
+      class: 'profile-edit__content-item',
+      modelValue: user.value.conversation_style,
+      'onUpdate:modelValue': (e: string) => {
+        editComponentBinds.value.modelValue = e
+        editedValues.value.conversation_style = e
+        user.value.conversation_style = e
+      },
+    })
+  }else if (type === 'evening_scenarios') {
+    editComponentBinds.value = {
+      modelValue: user.value.evening_scenario,
+      key: user.value.evening_scenario,
+    }
+    editComponent.value = h(BaseButtonGroup, {
+      options:  dictionaries.value.evening_scenarios,
+      class: 'profile-edit__content-item',
+      modelValue: user.value.evening_scenario,
+      'onUpdate:modelValue': (e: string) => {
+        editComponentBinds.value.modelValue = e
+        editedValues.value.evening_scenario = e
+        user.value.evening_scenario = e
       },
     })
   }
@@ -427,6 +550,145 @@ onMounted(() => {
                 </svg>
               </div>
             </div>
+            <div @click="showEdit('children_statuses')" class="link">
+              <div class="label">Дети</div>
+
+              <div class="text">
+                <p>
+                  {{ userInfos.childrenStatuses?.name || '-' }}
+                </p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
+                    fill="#291E1E"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div @click="showEdit('occupations')" class="link">
+              <div class="label">Сфера деятельности</div>
+
+              <div class="text">
+                <p>
+                  {{ userInfos.occupations?.name || '-' }}
+                </p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
+                    fill="#291E1E"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div @click="showEdit('participation')" class="link">
+              <div class="label">Основная цель участия </div>
+
+              <div class="text">
+                <p>
+                  {{ userInfos.participation?.name || '-' }}
+                </p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
+                    fill="#291E1E"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div @click="showEdit('decision_basis')" class="link">
+              <div class="label">Решения</div>
+
+              <div class="text">
+                <p>
+                  {{ userInfos.decisionBasis?.name || '-' }}
+                </p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
+                    fill="#291E1E"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div @click="showEdit('conversation_style')" class="link">
+              <div class="label">Формат общения</div>
+
+              <div class="text">
+                <p>
+                  {{ userInfos.conversationStyle?.name || '-' }}
+                </p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
+                    fill="#291E1E"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div @click="showEdit('evening_scenarios')" class="link">
+              <div class="label">Сценарий</div>
+
+              <div class="text">
+                <p>
+                  {{ userInfos.eveningScenarios?.name || '-' }}
+                </p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8.03309 1.98376C7.56389 2.42536 7.54151 3.16372 7.98312 3.63292L13.8972 9.91666L7.98312 16.2004C7.54151 16.6696 7.56389 17.408 8.03309 17.8496C8.50229 18.2912 9.24065 18.2688 9.68225 17.7996L16.3489 10.7163C16.7717 10.267 16.7717 9.56629 16.3489 9.11707L9.68225 2.03373C9.24065 1.56453 8.50229 1.54216 8.03309 1.98376Z"
+                    fill="#291E1E"
+                  />
+                </svg>
+              </div>
+            </div>
+
             <div @click="showEdit('logic')" class="link">
               <div class="label">Основа мнений</div>
 

@@ -13,11 +13,12 @@ import AboutUserStep from '@/components/onboarding/AboutUserStep.vue'
 import UserPreferences from '@/components/onboarding/UserPreferences.vue'
 import { createUserService } from '@/services'
 import { useOnboardingStore } from '@/stores/onboarding.ts'
+import BaseButtonGroup from '@/components/base/BaseButtonGroup.vue'
 
 type Question = {
   navbarTitle: string
   title: string
-  key: string
+  key: FormKeys
   submit: () => void | boolean | any
   valid: boolean
   showSubmitBtn: boolean
@@ -29,6 +30,12 @@ enum FormKeys {
   AGE = 'age',
   gender = 'gender',
   relationship_status = 'relationship_status',
+  children_statuses = 'has_children',
+  occupations = 'occupation',
+  participation = 'participation',
+  decision_basis = 'decision_basis',
+  conversation_style = 'conversation_style',
+  evening_scenarios = 'evening_scenario',
   opinion_basis = 'opinion_basis',
   introversion_level = 'introversion_level',
   photo = 'photo',
@@ -46,6 +53,12 @@ const formValues = ref({
   [FormKeys.AGE]: null,
   [FormKeys.gender]: null,
   [FormKeys.relationship_status]: null,
+  [FormKeys.children_statuses]: null,
+  [FormKeys.occupations]: null,
+  [FormKeys.participation]: null,
+  [FormKeys.decision_basis]: null,
+  [FormKeys.conversation_style]: null,
+  [FormKeys.evening_scenarios]: null,
   [FormKeys.opinion_basis]: null,
   [FormKeys.introversion_level]: null,
   [FormKeys.photo]: null,
@@ -57,7 +70,8 @@ const formValues = ref({
   [FormKeys.budget]: null,
 })
 const router = useRouter()
-const activeSlide = ref(0)
+const activeSlide = ref(FormKeys.NAME)
+const lastSlide = ref(FormKeys.NAME)
 const showPreferences = ref(false)
 const store = useOnboardingStore()
 const userService = createUserService()
@@ -71,11 +85,12 @@ const changePreferances = (e) => {
   formValues.value[e.key] = e.value
 }
 
-const questions = ref<Question[]>([
-  {
+
+const questions = ref({
+  [FormKeys.NAME]: {
     navbarTitle: 'Личность',
-    key: [FormKeys.NAME],
-    title: 'твое Имя',
+    key: FormKeys.NAME,
+    title: 'Твое имя',
     submit: async function () {
       let result = false
       await userService
@@ -98,7 +113,7 @@ const questions = ref<Question[]>([
     showSubmitBtn: true,
     component: () => {
       const validation = function () {
-        questions.value[0].valid = formValues.value[FormKeys.NAME].length > 0
+        questions.value[FormKeys.NAME].valid = formValues.value[FormKeys.NAME].length > 0
       }
       return h(FirstStep, {
         modelValue: formValues.value[FormKeys.NAME],
@@ -109,19 +124,19 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
+  [FormKeys.AGE]: {
     navbarTitle: 'Личность',
     title: 'твой возраст',
     key: FormKeys.AGE,
     submit: async function () {
-      return Promise.resolve(questions.value[1].valid)
+      return Promise.resolve(questions.value[FormKeys.AGE].valid)
     },
     valid: false,
     showSubmitBtn: false,
     component: () => {
       const validation = function () {
-        questions.value[1].valid = formValues.value[FormKeys.AGE] !== null
-        return questions.value[1].valid
+        questions.value[FormKeys.AGE].valid = formValues.value[FormKeys.AGE] !== null
+        return questions.value[FormKeys.AGE].valid
       }
       return h(SecondStep, {
         modelValue: formValues.value[FormKeys.AGE],
@@ -134,7 +149,7 @@ const questions = ref<Question[]>([
               })
               .then(() => {
                 changePosition(3)
-                nextSlide(1, validation)
+                nextSlide(FormKeys.gender, FormKeys.AGE, validation)
               })
               .catch((error) => {
                 if (tgWebApp) {
@@ -146,60 +161,57 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
+  [FormKeys.gender]: {
     navbarTitle: 'Личность',
     title: 'выбери пол',
     key: FormKeys.gender,
     submit: function () {
-      return Promise.resolve(questions.value[2].valid)
+      return Promise.resolve(questions.value[FormKeys.gender].valid)
     },
     valid: false,
     showSubmitBtn: false,
     component: function () {
       const validation = function () {
-        questions.value[2].valid = formValues.value[FormKeys.gender] !== null
-
-        return questions.value[2].valid
+        questions.value[FormKeys.gender].valid = formValues.value[FormKeys.gender] !== null
+        return questions.value[FormKeys.gender].valid
       }
       return h(ThirdStep, {
         modelValue: formValues.value[FormKeys.gender],
         'onUpdate:modelValue': async (e) => {
           formValues.value[FormKeys.gender] = e
           if (validation()) {
-            let result = false
             await userService
               .updateUserDetails({
                 [FormKeys.gender]: formValues.value[FormKeys.gender],
               })
               .then(() => {
                 changePosition(4)
-                result = true
-                nextSlide(2, validation)
+                nextSlide(FormKeys.relationship_status, FormKeys.gender, validation)
               })
               .catch((error) => {
                 if (tgWebApp) {
                   tgWebApp.showAlert(error.message || 'Произошла ошибка')
                 }
-                result = false
               })
           }
         },
       })
     },
   },
-  {
+  [FormKeys.relationship_status]: {
     navbarTitle: 'Личность',
     title: 'семейный статус',
     key: FormKeys.relationship_status,
     submit: async function () {
-      return Promise.resolve(questions.value[3].valid)
+      return Promise.resolve(questions.value[FormKeys.relationship_status].valid)
     },
     valid: false,
     showSubmitBtn: false,
     component: () => {
       const validation = function () {
-        questions.value[3].valid = formValues.value[FormKeys.relationship_status] !== null
-        return questions.value[3].valid
+        questions.value[FormKeys.relationship_status].valid =
+          formValues.value[FormKeys.relationship_status] !== null
+        return questions.value[FormKeys.relationship_status].valid
       }
       return h(FourthStep, {
         modelValue: formValues.value[FormKeys.relationship_status],
@@ -211,7 +223,7 @@ const questions = ref<Question[]>([
             })
             .then(() => {
               changePosition(5)
-              nextSlide(3, validation)
+              nextSlide(FormKeys.children_statuses, FormKeys.relationship_status, validation)
             })
             .catch((error) => {
               if (tgWebApp) {
@@ -222,33 +234,36 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
-    navbarTitle: 'Характер',
-    title: 'Основа мнений',
-    key: FormKeys.opinion_basis,
+  [FormKeys.children_statuses]: {
+    navbarTitle: 'Личность',
+    title: 'Есть ли у тебя дети?',
+    key: FormKeys.children_statuses,
     submit: async function () {
-      return Promise.resolve(questions.value[4].valid)
+      return Promise.resolve(questions.value[FormKeys.children_statuses].valid)
     },
 
     valid: false,
     showSubmitBtn: false,
     component: () => {
       const validation = function () {
-        questions.value[4].valid = formValues.value[FormKeys.opinion_basis] !== null
-        return questions.value[4].valid
+        questions.value[FormKeys.children_statuses].valid =
+          formValues.value[FormKeys.children_statuses] !== null
+        return questions.value[FormKeys.children_statuses].valid
       }
-      return h(FifthStep, {
-        modelValue: formValues.value[FormKeys.opinion_basis],
+      return h(BaseButtonGroup, {
+        options: store.getDictionaries.children_statuses,
+        modelValue: formValues.value[FormKeys.children_statuses],
         'onUpdate:modelValue': async (e) => {
-          formValues.value.opinion_basis = e
+          formValues.value[FormKeys.children_statuses] = e
+          console.log(e)
           if (validation()) {
             await userService
               .updateUserDetails({
-                [FormKeys.opinion_basis]: formValues.value[FormKeys.opinion_basis],
+                [FormKeys.children_statuses]: formValues.value[FormKeys.children_statuses],
               })
               .then(() => {
                 changePosition(6)
-                nextSlide(4, validation)
+                nextSlide(FormKeys.occupations, FormKeys.children_statuses, validation)
               })
               .catch((error) => {
                 if (tgWebApp) {
@@ -260,20 +275,180 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
+  [FormKeys.occupations]: {
     navbarTitle: 'Характер',
-    title: 'насколько ты Интроверт?',
-    key: FormKeys.introversion_level,
+    title: 'Сфера деятельности',
+    key: FormKeys.occupations,
     submit: async function () {
-      return Promise.resolve(questions.value[5].valid)
+      return Promise.resolve(questions.value[FormKeys.occupations].valid)
     },
 
     valid: false,
     showSubmitBtn: false,
     component: () => {
       const validation = function () {
-        questions.value[5].valid = formValues.value[FormKeys.introversion_level] !== null
-        return questions.value[5].valid
+        questions.value[FormKeys.occupations].valid =
+          formValues.value[FormKeys.occupations] !== null
+        return questions.value[FormKeys.occupations].valid
+      }
+      return h(BaseButtonGroup, {
+        options: store.getDictionaries.occupations,
+        modelValue: formValues.value[FormKeys.occupations],
+        'onUpdate:modelValue': async (e) => {
+          formValues.value[FormKeys.occupations] = e
+          if (validation()) {
+            await userService
+              .updateUserDetails({
+                [FormKeys.occupations]: formValues.value[FormKeys.occupations],
+              })
+              .then(() => {
+                changePosition(7)
+                nextSlide(FormKeys.participation, FormKeys.occupations, validation)
+              })
+              .catch((error) => {
+                if (tgWebApp) {
+                  tgWebApp.showAlert(error.message || 'Произошла ошибка')
+                }
+              })
+          }
+        },
+      })
+    },
+  },
+  [FormKeys.participation]: {
+    navbarTitle: 'Характер',
+    title: 'Основная цель участия',
+    key: FormKeys.participation,
+    submit: async function () {
+      return Promise.resolve(questions.value[FormKeys.participation].valid)
+    },
+
+    valid: false,
+    showSubmitBtn: false,
+    component: () => {
+      const validation = function () {
+        questions.value[FormKeys.participation].valid =
+          formValues.value[FormKeys.participation] !== null
+        return questions.value[FormKeys.participation].valid
+      }
+      return h(BaseButtonGroup, {
+        options: store.getDictionaries.participation,
+        modelValue: formValues.value[FormKeys.participation],
+        'onUpdate:modelValue': async (e) => {
+          formValues.value[FormKeys.participation] = e
+          if (validation()) {
+            await userService
+              .updateUserDetails({
+                [FormKeys.participation]: formValues.value[FormKeys.participation],
+              })
+              .then(() => {
+                changePosition(8)
+                nextSlide(FormKeys.decision_basis, FormKeys.participation, validation)
+              })
+              .catch((error) => {
+                if (tgWebApp) {
+                  tgWebApp.showAlert(error.message || 'Произошла ошибка')
+                }
+              })
+          }
+        },
+      })
+    },
+  },
+  [FormKeys.decision_basis]: {
+    navbarTitle: 'Характер',
+    title: 'На чем чаще основано твое решение?',
+    key: FormKeys.decision_basis,
+    submit: async function () {
+      return Promise.resolve(questions.value[FormKeys.decision_basis].valid)
+    },
+
+    valid: false,
+    showSubmitBtn: false,
+    component: () => {
+      const validation = function () {
+        questions.value[FormKeys.decision_basis].valid =
+          formValues.value[FormKeys.decision_basis] !== null
+        return questions.value[FormKeys.decision_basis].valid
+      }
+      return h(BaseButtonGroup, {
+        options: store.getDictionaries.decision_basis,
+        modelValue: formValues.value[FormKeys.decision_basis],
+        'onUpdate:modelValue': async (e) => {
+          formValues.value[FormKeys.decision_basis] = e
+          if (validation()) {
+            await userService
+              .updateUserDetails({
+                [FormKeys.decision_basis]: formValues.value[FormKeys.decision_basis],
+              })
+              .then(() => {
+                changePosition(9)
+                nextSlide(FormKeys.opinion_basis, FormKeys.decision_basis, validation)
+              })
+              .catch((error) => {
+                if (tgWebApp) {
+                  tgWebApp.showAlert(error.message || 'Произошла ошибка')
+                }
+              })
+          }
+        },
+      })
+    },
+  },
+  [FormKeys.opinion_basis]: {
+    navbarTitle: 'Характер',
+    title: 'Насколько комфортно ты вливаешься в новую компанию?',
+    key: FormKeys.opinion_basis,
+    submit: async function () {
+      return Promise.resolve(questions.value[FormKeys.opinion_basis].valid)
+    },
+
+    valid: false,
+    showSubmitBtn: false,
+    component: () => {
+      const validation = function () {
+        questions.value[FormKeys.opinion_basis].valid =
+          formValues.value[FormKeys.opinion_basis] !== null
+        return questions.value[FormKeys.opinion_basis].valid
+      }
+      return h(FifthStep, {
+        modelValue: formValues.value[FormKeys.opinion_basis],
+        'onUpdate:modelValue': async (e) => {
+          formValues.value[FormKeys.opinion_basis] = e
+          if (validation()) {
+            await userService
+              .updateUserDetails({
+                [FormKeys.opinion_basis]: formValues.value[FormKeys.opinion_basis],
+              })
+              .then(() => {
+                changePosition(10)
+                nextSlide(FormKeys.introversion_level, FormKeys.opinion_basis, validation)
+              })
+              .catch((error) => {
+                if (tgWebApp) {
+                  tgWebApp.showAlert(error.message || 'Произошла ошибка')
+                }
+              })
+          }
+        },
+      })
+    },
+  },
+  [FormKeys.introversion_level]: {
+    navbarTitle: 'Характер',
+    title: 'Как часто ты знакомишься с новыми людьми?',
+    key: FormKeys.introversion_level,
+    submit: async function () {
+      return Promise.resolve(questions.value[FormKeys.introversion_level].valid)
+    },
+
+    valid: false,
+    showSubmitBtn: false,
+    component: () => {
+      const validation = function () {
+        questions.value[FormKeys.introversion_level].valid =
+          formValues.value[FormKeys.introversion_level] !== null
+        return questions.value[FormKeys.introversion_level].valid
       }
       return h(SixStep, {
         modelValue: formValues.value[FormKeys.introversion_level],
@@ -285,8 +460,8 @@ const questions = ref<Question[]>([
                 [FormKeys.introversion_level]: formValues.value[FormKeys.introversion_level],
               })
               .then(() => {
-                changePosition(7)
-                nextSlide(5, validation)
+                changePosition(11)
+                nextSlide(FormKeys.conversation_style, FormKeys.introversion_level, validation)
               })
               .catch((error) => {
                 if (tgWebApp) {
@@ -298,19 +473,100 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
+  [FormKeys.conversation_style]: {
+    navbarTitle: 'Характер',
+    title: 'На чем чаще основано твое решение?',
+    key: FormKeys.conversation_style,
+    submit: async function () {
+      return Promise.resolve(questions.value[FormKeys.conversation_style].valid)
+    },
+
+    valid: false,
+    showSubmitBtn: false,
+    component: () => {
+      const validation = function () {
+        questions.value[FormKeys.conversation_style].valid =
+          formValues.value[FormKeys.conversation_style] !== null
+        return questions.value[FormKeys.conversation_style].valid
+      }
+      return h(BaseButtonGroup, {
+        options: store.getDictionaries.conversation_style,
+        modelValue: formValues.value[FormKeys.conversation_style],
+        'onUpdate:modelValue': async (e) => {
+          formValues.value[FormKeys.conversation_style] = e
+          if (validation()) {
+            await userService
+              .updateUserDetails({
+                [FormKeys.conversation_style]: formValues.value[FormKeys.conversation_style],
+              })
+              .then(() => {
+                changePosition(12)
+                nextSlide(FormKeys.evening_scenarios, FormKeys.conversation_style, validation)
+              })
+              .catch((error) => {
+                if (tgWebApp) {
+                  tgWebApp.showAlert(error.message || 'Произошла ошибка')
+                }
+              })
+          }
+        },
+      })
+    },
+  },
+
+  [FormKeys.evening_scenarios]: {
+    navbarTitle: 'Характер',
+    title: 'На чем чаще основано твое решение?',
+    key: FormKeys.evening_scenarios,
+    submit: async function () {
+      return Promise.resolve(questions.value[FormKeys.evening_scenarios].valid)
+    },
+
+    valid: false,
+    showSubmitBtn: false,
+    component: () => {
+      const validation = function () {
+        questions.value[FormKeys.evening_scenarios].valid =
+          formValues.value[FormKeys.evening_scenarios] !== null
+        return questions.value[FormKeys.evening_scenarios].valid
+      }
+      return h(BaseButtonGroup, {
+        options: store.getDictionaries.evening_scenarios,
+        modelValue: formValues.value[FormKeys.evening_scenarios],
+        'onUpdate:modelValue': async (e) => {
+          formValues.value[FormKeys.evening_scenarios] = e
+          if (validation()) {
+            await userService
+              .updateUserDetails({
+                [FormKeys.evening_scenarios]: formValues.value[FormKeys.evening_scenarios],
+              })
+              .then(() => {
+                changePosition(13)
+                nextSlide(FormKeys.socials, FormKeys.evening_scenarios, validation)
+              })
+              .catch((error) => {
+                if (tgWebApp) {
+                  tgWebApp.showAlert(error.message || 'Произошла ошибка')
+                }
+              })
+          }
+        },
+      })
+    },
+  },
+  [FormKeys.socials]: {
     navbarTitle: 'Знакомство',
     title: 'Твои социальные сети',
     key: FormKeys.socials,
     submit: async function () {
-      if (questions.value[6].valid) {
+      if (questions.value[FormKeys.socials].valid) {
         await userService
           .updateUserDetails({
             instagram: formValues.value[FormKeys.instagram],
             telegramm: formValues.value[FormKeys.telegram],
           })
           .then(() => {
-            changePosition(8)
+            changePosition(14)
           })
           .catch((error) => {
             if (tgWebApp) {
@@ -318,36 +574,36 @@ const questions = ref<Question[]>([
             }
           })
       }
-      return Promise.resolve(questions.value[6].valid)
+      return Promise.resolve(questions.value[FormKeys.socials].valid)
     },
 
     valid: true,
     showSubmitBtn: true,
     component: () => {
       const validation = function () {
-        // const instagramRegex = /^(www\.)?instagram\.com\/([a-zA-Z0-9._]{1,30})\/?$/
-        // const telegramRegex = /^(t(elegram)?\.me|telegram\.org)\/([a-zA-Z0-9_]{5,32})\/?$/
-        // if (
-        //   formValues.value[FormKeys.instagram]?.length > 0 &&
-        //   !instagramRegex.test(formValues.value[FormKeys.instagram])
-        // ) {
-        //   questions.value[6].valid = false
-        //
-        //   return
-        // } else {
-        //   questions.value[6].valid = true
-        // }
-        // if (
-        //   formValues.value[FormKeys.telegram]?.length > 0 &&
-        //   !telegramRegex.test(formValues.value[FormKeys.telegram])
-        // ) {
-        //   questions.value[6].valid = false
-        //   return
-        // } else {
-        //   questions.value[6].valid = true
-        // }
-        questions.value[6].valid = true
-        return questions.value[6].valid
+        /*const instagramRegex = /^(www\.)?instagram\.com\/([a-zA-Z0-9._]{1,30})\/?$/
+        const telegramRegex = /^(t(elegram)?\.me|telegram\.org)\/([a-zA-Z0-9_]{5,32})\/?$/
+        if (
+          formValues.value[FormKeys.instagram]?.length > 0 &&
+          !instagramRegex.test(formValues.value[FormKeys.instagram])
+        ) {
+          questions.value[6].valid = false
+
+          return
+        } else {
+          questions.value[6].valid = true
+        }
+        if (
+          formValues.value[FormKeys.telegram]?.length > 0 &&
+          !telegramRegex.test(formValues.value[FormKeys.telegram])
+        ) {
+          questions.value[6].valid = false
+          return
+        } else {
+          questions.value[6].valid = true
+        }*/
+        questions.value[FormKeys.socials].valid = true
+        return questions.value[FormKeys.socials].valid
       }
       validation()
       return h(SocialsStep, {
@@ -364,25 +620,26 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
+
+  [FormKeys.photo]: {
     navbarTitle: 'Знакомство',
     title: 'добавь фото',
     key: FormKeys.photo,
     submit: async function () {
-      changePosition(9)
+      changePosition(15)
       store.setUserAnket({
         [FormKeys.photo]: formValues.value[FormKeys.photo],
       })
-      return Promise.resolve(questions.value[7].valid)
+      return Promise.resolve(questions.value[FormKeys.photo].valid)
     },
 
     valid: false,
     showSubmitBtn: true,
     component: () => {
       const validation = function () {
-        questions.value[7].valid =
+        questions.value[FormKeys.photo].valid =
           formValues.value[FormKeys.photo] !== null || formValues.value[FormKeys.photo].length > 0
-        return questions.value[7].valid
+        return questions.value[FormKeys.photo].valid
       }
       return h(UserPhotoStep, {
         modelValue: formValues.value[FormKeys.photo],
@@ -393,7 +650,7 @@ const questions = ref<Question[]>([
       })
     },
   },
-  {
+  [FormKeys.about_myself]: {
     navbarTitle: 'Знакомство',
     title: 'Расскажи о себе',
     key: FormKeys.about_myself,
@@ -404,7 +661,7 @@ const questions = ref<Question[]>([
           [FormKeys.about_myself]: formValues.value[FormKeys.about_myself],
         })
         .then(async () => {
-          changePosition(11)
+          changePosition(16)
           await createUserService()
             .getUserAnket()
             .then((response) => {
@@ -413,6 +670,7 @@ const questions = ref<Question[]>([
           router.push({
             params: {
               page: 'events-page',
+              page2: '',
             },
           })
         })
@@ -428,7 +686,7 @@ const questions = ref<Question[]>([
     showSubmitBtn: true,
     component: () => {
       const validation = function () {
-        return questions.value[8].valid
+        return questions.value[FormKeys.about_myself].valid
       }
       return h(AboutUserStep, {
         modelValue: formValues.value[FormKeys.about_myself],
@@ -439,19 +697,22 @@ const questions = ref<Question[]>([
       })
     },
   },
-])
+})
 const nextSlide = async (
-  index: number,
+  index: FormKeys,
+  currentIndex: FormKeys,
   validation: () => boolean | Promise<boolean> = () => false,
 ) => {
-  if ((await validation()) && activeSlide.value < questions.value.length - 1) {
-    activeSlide.value++
+  if (await validation() && index) {
+    activeSlide.value = index
+    lastSlide.value = currentIndex
   } else {
     showPreferences.value = true
   }
 }
 const pref = ref()
 const prevSlide = () => {
+  const q = Object.keys(questions.value)
   if (showPreferences.value) {
     if (pref.value.onConfirmation()) {
       pref.value.onBack()
@@ -465,14 +726,14 @@ const prevSlide = () => {
         [FormKeys.food_restrictions]: formValues.value[FormKeys.food_restrictions],
         [FormKeys.event_language]: formValues.value[FormKeys.event_language],
         [FormKeys.budget]: formValues.value[FormKeys.budget],
-        [questions.value[activeSlide.value].key]:
-          formValues.value[questions.value[activeSlide.value].key],
+        [activeSlide.value]: formValues.value[activeSlide.value],
       })
     }
     return
   }
-  if (activeSlide.value > 0) {
-    if (questions.value[activeSlide.value - 1].key === FormKeys.socials) {
+  if (activeSlide.value !== FormKeys.NAME) {
+    const lastIndex = q.findIndex(item => item === lastSlide.value)
+    if (activeSlide.value === FormKeys.socials) {
       formValues.value[FormKeys.instagram] = null
       formValues.value[FormKeys.telegram] = null
       userService.updateUserDetails({
@@ -480,35 +741,46 @@ const prevSlide = () => {
         [FormKeys.telegram]: formValues.value[FormKeys.telegram],
       })
     } else {
-      if (activeSlide.value - 1 !== 0) {
-        formValues.value[questions.value[activeSlide.value - 1].key] = null
+      console.log('lastSlide.value', lastSlide.value)
+      console.log('activeSlide.value', activeSlide.value)
+      if (activeSlide.value !== FormKeys.NAME) {
+        formValues.value[lastSlide.value] = null
       }
+      formValues.value[activeSlide.value] = null
+      console.log('formValues.value', lastSlide.value ,formValues.value[lastSlide.value])
+      console.log('formValues.valueasd', activeSlide.value ,formValues.value[activeSlide.value])
       userService.updateUserDetails({
-        [questions.value[activeSlide.value - 1].key]:
-          formValues.value[questions.value[activeSlide.value - 1].key],
+        [activeSlide.value]:
+          formValues.value[activeSlide.value],
+        [lastSlide.value]: formValues.value[lastSlide.value]
       })
     }
 
-    activeSlide.value--
+    activeSlide.value = lastSlide.value
+    lastSlide.value = q[lastIndex - 1]
     changePosition(store.getPosition - 1)
   }
 }
 
 const setValues = (data) => {
   let foudnPosition = false
-  for (let i = 0; i < questions.value.length; i++) {
-    let value = data[questions.value[i].key]
-    if (questions.value[i].key === FormKeys.socials) {
+  const q = Object.values(questions.value)
+  for (let i = 0; i < q.length; i++) {
+    let value = data[q[i].key]
+    if (q[i].key === FormKeys.socials) {
       formValues.value[FormKeys.instagram] = data[FormKeys.instagram] || ''
       formValues.value[FormKeys.telegram] = data[FormKeys.telegram] || ''
-      if ((!formValues.value.instagram || !formValues.value[FormKeys.telegram]) && store.getPosition === 7) {
+      if (
+        (!formValues.value.instagram || !formValues.value[FormKeys.telegram]) &&
+        store.getPosition === 14
+      ) {
         value = false
       } else {
         value = true
       }
     } else {
-      formValues.value[questions.value[i].key] = data[questions.value[i].key]
-      if (!formValues.value[questions.value[i].key]) {
+      formValues.value[q[i].key] = data[q[i].key]
+      if (!formValues.value[q[i].key]) {
         value = ''
       }
     }
@@ -516,10 +788,10 @@ const setValues = (data) => {
     //   foudnPosition = true
     //   activeSlide.value = i
     // }
-    questions.value[i].valid = !!value
-    if (questions.value[i].key === FormKeys.about_myself) {
-      questions.value[i].valid = true
-      formValues.value[questions.value[i].key] = data[questions.value[i].key] || ''
+    questions.value[q[i].key].valid = !!value
+    if (q[i].key === FormKeys.about_myself) {
+      questions.value[q[i].key].valid = true
+      formValues.value[q[i].key] = data[q[i].key] || ''
     }
 
     if (store.getPosition === 10) {
@@ -528,7 +800,10 @@ const setValues = (data) => {
     if (i + 1 === store.getPosition || !value) {
       if (!foudnPosition) {
         foudnPosition = true
-        activeSlide.value = i
+        activeSlide.value = q[i].key
+        if (i > 0) {
+          lastSlide.value =  q[i - 1].key
+        }
       }
     }
   }
@@ -568,7 +843,7 @@ onMounted(() => {
         </svg>
       </button>
       <div class="onboarding-form__navbar-title">
-        <p>{{ !showPreferences ? questions[activeSlide].navbarTitle : 'Ужин' }}</p>
+        <p>{{ !showPreferences ? questions[activeSlide]?.navbarTitle : 'Ужин' }}</p>
       </div>
       <button style="visibility: hidden">
         <svg
@@ -589,16 +864,16 @@ onMounted(() => {
     </div>
     <div v-if="!showPreferences" class="slide-indicators">
       <div
-        v-for="(n, i) in questions"
+        v-for="(n, i, index) in questions"
         :key="i"
         :class="{
-          active: activeSlide === i || activeSlide > i,
+          active: activeSlide === i || index < store.getPosition,
         }"
         class="slide-indicators__item"
       ></div>
     </div>
     <div v-if="!showPreferences" class="slides">
-      <template v-for="(question, n) in questions" :key="n">
+      <template v-for="(question, n, index) in questions" :key="n">
         <div
           :class="{
             active: activeSlide === n,
@@ -613,7 +888,7 @@ onMounted(() => {
           </div>
           <div v-if="question.showSubmitBtn" class="onboarding-form__footer">
             <button
-              @click="nextSlide(n, question.submit)"
+              @click="nextSlide(Object.values(questions)[index + 1]?.key, n, question.submit)"
               :disabled="!question.valid"
               class="btn"
               :class="{
