@@ -475,7 +475,7 @@ const questions = ref({
   },
   [FormKeys.conversation_style]: {
     navbarTitle: 'Характер',
-    title: 'На чем чаще основано твое решение?',
+    title: 'Какой формат общения тебе ближе?',
     key: FormKeys.conversation_style,
     submit: async function () {
       return Promise.resolve(questions.value[FormKeys.conversation_style].valid)
@@ -516,7 +516,7 @@ const questions = ref({
 
   [FormKeys.evening_scenarios]: {
     navbarTitle: 'Характер',
-    title: 'На чем чаще основано твое решение?',
+    title: 'Какой сценарий вечера тебе больше подходит?',
     key: FormKeys.evening_scenarios,
     submit: async function () {
       return Promise.resolve(questions.value[FormKeys.evening_scenarios].valid)
