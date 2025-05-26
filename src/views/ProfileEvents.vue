@@ -202,7 +202,9 @@ onMounted(() => {
           <p class="modal-title">
             {{ selectedGroupItem?.name }}
           </p>
-<!--          <p class="modal-description1">Журналист</p>-->
+          <p v-if="selectedGroupItem?.participation" class="modal-description1">
+            {{ selectedGroupItem?.participation }}
+          </p>
           <div class="user-about-self">
             <p class="modal-description">
               {{ selectedGroupItem?.about }}

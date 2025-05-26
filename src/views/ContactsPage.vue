@@ -113,7 +113,9 @@ onMounted(() => {
           <p class="modal-title">
             {{ seletedContact.name }}
           </p>
-<!--          <p class="modal-description1">Журналист</p>-->
+          <p v-if="seletedContact?.participation" class="modal-description1">
+            {{ seletedContact.participation }}
+          </p>
           <div class="user-about-self">
             <p class="modal-description">
 
