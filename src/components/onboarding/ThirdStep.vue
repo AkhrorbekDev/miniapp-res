@@ -7,11 +7,11 @@ const minAge = 18
 const genders = ref([
   {
     value: 'm',
-    text: 'Мужчина',
+    text: 'Мужской',
   },
   {
     value: 'f',
-    text: 'Женщина',
+    text: 'Женский',
   }
 ])
 

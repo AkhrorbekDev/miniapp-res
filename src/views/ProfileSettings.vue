@@ -101,7 +101,7 @@ const changePage = (e) => {
         <p>Юридическая информация</p>
       </div>
       <div class="profile-page__links">
-        <button class="btn btn-outline-rounded">
+        <a href="https://forkies.ru/policy" target="_blank" class="btn btn-outline-rounded">
           <span>Политика конфиденциальности</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -117,8 +117,8 @@ const changePage = (e) => {
               fill="#291E1E"
             />
           </svg>
-        </button>
-        <button class="btn btn-outline-rounded">
+        </a>
+        <a href="https://forkies.ru/offer" target="_blank" class="btn btn-outline-rounded">
           <span>Договор оферты</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -134,8 +134,8 @@ const changePage = (e) => {
               fill="#291E1E"
             />
           </svg>
-        </button>
-        <button class="btn btn-outline-rounded">
+        </a>
+        <a href="https://forkies.ru/personal" target="_blank" class="btn btn-outline-rounded">
           <span>Обработка персональных данных</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +151,7 @@ const changePage = (e) => {
               fill="#291E1E"
             />
           </svg>
-        </button>
+        </a>
       </div>
     </div>
     <div class="profile-page__footer">

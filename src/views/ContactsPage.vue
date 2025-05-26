@@ -204,6 +204,8 @@ onMounted(() => {
 
   &__content {
     padding: 12px 0;
+    height: 100%;
+    overflow: auto;
     &-header {
       display: flex;
       flex-direction: column;

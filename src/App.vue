@@ -49,8 +49,18 @@ onMounted(async () => {
     const initData = tgWebApp.initData
     const user = tgWebApp.initDataUnsafe.user
     await obtainToken({
-      initData,
-      user,
+      initData:
+        'query_id=AAFtdFMsAAAAAG10Uyy7Iaq3&user=%7B%22id%22%3A743666797%2C%22first_name%22%3A%22%D0%90%D1%85%D1%80%D0%BE%D1%80%D0%B1%D0%B5%D0%BA%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22Axrorbek_Nisonboyev%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FHLDiKRsokTnWGzxv8U2t8CBmhwPobri_-tGTwZs0SLc.svg%22%7D&auth_date=1748181070&signature=MS1z_piK4raG-7zZKkg3AWSldR-91X_5EBnYbY-vjp9OvvVGXTbABT6dpjqVNMCJjtXiJvDvpWBaX2V2fzkMCw&hash=f3f671d4326dfc3a486e7624e36b5135c51773d1cbc9342d76041fb1f6c77736',
+      user: {
+        allows_write_to_pm: true,
+        first_name: 'Ахрорбек',
+        id: 743666797,
+        is_premium: true,
+        language_code: 'ru',
+        last_name: '',
+        photo_url: 'https://t.me/i/userpic/320/HLDiKRsokTnWGzxv8U2t8CBmhwPobri_-tGTwZs0SLc.svg',
+        username: 'Axrorbek_Nisonboyev',
+      },
     })
       .then((response) => {
         // tgWebApp.showAlert('Вы успешно авторизованы')

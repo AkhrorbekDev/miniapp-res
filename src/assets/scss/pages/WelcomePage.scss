@@ -37,7 +37,7 @@
     margin-bottom: 16px;
   }
 
-  &__content__description, &__content__offert {
+  &__content__description {
     color: var(--primary-light, #FCF9EA);
     text-align: center;
 
@@ -48,6 +48,19 @@
     font-weight: 500;
     line-height: 22px; /* 137.5% */
     letter-spacing: -0.6px;
+  }
+
+  &__content__offert {
+    color: var(--primary-light, #FCF9EA);
+    text-align: center;
+
+    /* Caption */
+    font-family: Manrope;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 16px; /* 133.333% */
+    letter-spacing: -0.4px;
   }
 
   &__content__button {

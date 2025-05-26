@@ -158,7 +158,7 @@ const getUserEvent = () => {
       })
       .catch(() => {
         const tgWebApp = window.Telegram.WebApp
-        tgWebApp.showAlert('Ошибка получения ваших событий')
+        tgWebApp.showAlert('Ошибка получения статус ваших событий')
         return Promise.resolve()
       }),
   ])
