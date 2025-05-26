@@ -1258,8 +1258,8 @@ onMounted(async () => {
           <p class="modal-title">
             {{ selectedGroupItem?.name }}
           </p>
-                    <p v-if="selectedGroupItem?.participation" class="modal-description1">
-                      {{ selectedGroupItem?.participation }}
+                    <p v-if="selectedGroupItem?.оccupation" class="modal-description1">
+                      {{ selectedGroupItem?.оccupation }}
                     </p>
           <div class="user-about-self">
             <p class="modal-description">
