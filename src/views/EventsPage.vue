@@ -237,7 +237,7 @@ const confirmPayment = () => {
             description: 'Оплата ужина Forkies.ru',
             amount: res.event_price,
             currency: 'RUB',
-            accountId: '6122396208',
+            accountId: res.account_id,
             invoiceId: res.payment_id,
             skin: 'mini',
             autoClose: 3,
