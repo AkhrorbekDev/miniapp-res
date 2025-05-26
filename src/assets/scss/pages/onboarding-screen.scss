@@ -39,10 +39,11 @@
 .onboarding-screen__footer {
   position: absolute;
   bottom: 0;
-  padding: 24px 12px;
+  padding: 12px 12px;
   z-index: 3;
   left: 0;
   right: 0;
+  margin-bottom: 21px;
 }
 
 .slides {
@@ -91,7 +92,7 @@
       z-index: 2;
       padding-left: 12px;
       padding-right: 12px;
-      padding-bottom: 32px;
+      padding-bottom: 35px;
 
     }
 
@@ -106,6 +107,7 @@
       font-weight: 800;
       line-height: 34px; /* 100% */
       text-transform: uppercase;
+      margin-bottom: 12px;
     }
 
     &__description {
@@ -131,7 +133,7 @@
 
   &-item:nth-child(even) {
     .slides-item__content {
-      top: 82px;
+      top: 86px;
       bottom: unset;
     }
   }

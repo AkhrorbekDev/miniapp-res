@@ -13,6 +13,7 @@ export const createUserService = () => {
     }),
 
     getUserEvents: () => authApi(`/events/my-registrations/`),
+    getEventGame: () => authApi(`/game/`),
 
     getUserAnket: () => authApi('/questionnaire/'),
 

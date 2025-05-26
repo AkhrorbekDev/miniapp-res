@@ -27,6 +27,7 @@ const events = ref([])
 const swiperModules = [Pagination, Navigation]
 
 const userEvent = ref(null)
+const eventGames = ref(null)
 const userEventStats = ref({
   restaurant: {
     status: false,
@@ -101,6 +102,7 @@ const emergancyPromo = ref('')
 const showGameBottomSheet = ref(false)
 const showGroupItemModal = ref(false)
 const selectedGroupItem = ref(null)
+const selectedGameItem = ref(null)
 const card = ref({
   pan: '',
   date: '',
@@ -115,6 +117,10 @@ const closePaymentForm = () => {
   paymentType.value = 'subscription'
 }
 
+const openGameDrawer = (item) => {
+  selectedGameItem.value = item
+  showGameDrawer.value = true
+}
 const showGameModal = () => {
   showGameBottomSheet.value = true
 }
@@ -148,6 +154,17 @@ const getUserEvent = () => {
       .catch((err) => {
         const tgWebApp = window.Telegram.WebApp
         tgWebApp.showAlert('Ошибка получения ваших событий')
+        return Promise.resolve()
+      }),
+    createUserService()
+      .getEventGame()
+      .then((res) => {
+        eventGames.value = res
+        return Promise.resolve()
+      })
+      .catch(() => {
+        const tgWebApp = window.Telegram.WebApp
+        tgWebApp.showAlert('Ошибка получения статус вашей игры')
         return Promise.resolve()
       }),
     createUserService()
@@ -1016,24 +1033,9 @@ onMounted(async () => {
       </div>
     </BaseBottomSheet>
     <BaseBottomSheet title="" v-model="showGameBottomSheet">
-      <div class="user-event__controls-btn">
-        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
-          Познакомиться
-        </button>
-      </div>
-      <div class="user-event__controls-btn">
-        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
-          Поделиться опытом
-        </button>
-      </div>
-      <div class="user-event__controls-btn">
-        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
-          Узнать взгляды 
-        </button>
-      </div>
-      <div class="user-event__controls-btn">
-        <button @click="showGameDrawer = true" class="btn btn-outline-primary">
-          Мечтать вслух
+      <div v-for="game in eventGames" :key="game.id" class="user-event__controls-btn">
+        <button @click="openGameDrawer(game)" class="btn btn-outline-primary">
+          {{ game.title }}
         </button>
       </div>
     </BaseBottomSheet>
@@ -1224,22 +1226,13 @@ onMounted(async () => {
             :slides-per-view="1"
             :space-between="50"
           >
-            <swiper-slide>
+            <swiper-slide v-for="item in selectedGameItem?.items" :key="item.question">
               <div class="event-game__item">
-                <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
+                <p>
+                  {{ item.question }}
+                </p>
               </div>
             </swiper-slide>
-            <swiper-slide>
-              <div class="event-game__item">
-                <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
-              </div>
-            </swiper-slide>
-            <swiper-slide>
-              <div class="event-game__item">
-                <p>Было ли событие, после которого твои приоритеты кардинально поменялись?</p>
-              </div>
-            </swiper-slide>
-            ...
           </swiper>
         </div>
       </BaseDrawer>
@@ -1932,6 +1925,7 @@ onMounted(async () => {
 .event-game-drawer {
   padding: 0 !important;
   --swiper-navigation-top-offset: calc(100% - 20%);
+
   .event-game {
     background: var(--primary-accent, #fcf9ea);
     width: 100%;
