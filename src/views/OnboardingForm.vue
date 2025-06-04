@@ -85,7 +85,6 @@ const changePreferances = (e) => {
   formValues.value[e.key] = e.value
 }
 
-
 const questions = ref({
   [FormKeys.NAME]: {
     navbarTitle: 'Личность',
@@ -655,7 +654,7 @@ const questions = ref({
     title: 'Расскажи о себе',
     key: FormKeys.about_myself,
     submit: async function () {
-      let result = false
+      const result = false
       await userService
         .updateUserDetails({
           [FormKeys.about_myself]: formValues.value[FormKeys.about_myself],
@@ -703,11 +702,9 @@ const nextSlide = async (
   currentIndex: FormKeys,
   validation: () => boolean | Promise<boolean> = () => false,
 ) => {
-  if (await validation() && index) {
+  if ((await validation()) && index) {
     activeSlide.value = index
     lastSlide.value = currentIndex
-  } else {
-    showPreferences.value = true
   }
 }
 const pref = ref()
@@ -732,7 +729,7 @@ const prevSlide = () => {
     return
   }
   if (activeSlide.value !== FormKeys.NAME) {
-    const lastIndex = q.findIndex(item => item === lastSlide.value)
+    const lastIndex = q.findIndex((item) => item === lastSlide.value)
     if (activeSlide.value === FormKeys.socials) {
       formValues.value[FormKeys.instagram] = null
       formValues.value[FormKeys.telegram] = null
@@ -741,18 +738,13 @@ const prevSlide = () => {
         [FormKeys.telegram]: formValues.value[FormKeys.telegram],
       })
     } else {
-      console.log('lastSlide.value', lastSlide.value)
-      console.log('activeSlide.value', activeSlide.value)
       if (activeSlide.value !== FormKeys.NAME) {
         formValues.value[lastSlide.value] = null
       }
       formValues.value[activeSlide.value] = null
-      console.log('formValues.value', lastSlide.value ,formValues.value[lastSlide.value])
-      console.log('formValues.valueasd', activeSlide.value ,formValues.value[activeSlide.value])
       userService.updateUserDetails({
-        [activeSlide.value]:
-          formValues.value[activeSlide.value],
-        [lastSlide.value]: formValues.value[lastSlide.value]
+        [activeSlide.value]: formValues.value[activeSlide.value],
+        [lastSlide.value]: formValues.value[lastSlide.value],
       })
     }
 
@@ -802,7 +794,7 @@ const setValues = (data) => {
         foudnPosition = true
         activeSlide.value = q[i].key
         if (i > 0) {
-          lastSlide.value =  q[i - 1].key
+          lastSlide.value = q[i - 1].key
         }
       }
     }
@@ -880,12 +872,18 @@ onMounted(() => {
           }"
           class="slides-item"
         >
-          <div style="height: 100%">
+          <form
+            @submit.prevent="
+              nextSlide(Object.values(questions)[index + 1]?.key, n, question.submit)
+            "
+            @keydown.enter="nextSlide(Object.values(questions)[index + 1]?.key, n, question.submit)"
+            style="height: 100%"
+          >
             <div class="slides-item__title">
               {{ question.title }}
             </div>
             <component :is="question.component"></component>
-          </div>
+          </form>
           <div v-if="question.showSubmitBtn" class="onboarding-form__footer">
             <button
               @click="nextSlide(Object.values(questions)[index + 1]?.key, n, question.submit)"

@@ -32,13 +32,13 @@ const value = computed({
 
 const updateModelValue = (newValue: string) => {
   emit('update:modelValue', newValue)
-  console.log('Selected age:', newValue)
 }
 </script>
 
 <template>
   <div class="onboarding-form_second-step">
     <button
+      type="button"
       v-for="age in ages"
       @click="updateModelValue(age.value)"
       class="btn btn-outline"

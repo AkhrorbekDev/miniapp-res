@@ -26,6 +26,8 @@ const updateModelValue = (newValue: string) => {
 <template>
   <div v-if="dictionaries" class="onboarding-form_second-step">
     <button
+      type="button"
+
       v-for="familyStatus in dictionaries.relationship_statuses"
       @click="updateModelValue(familyStatus.id)"
       class="btn btn-outline"

@@ -28,6 +28,8 @@ const updateModelValue = (newValue: string) => {
 <template>
   <div class="base-checkbox-group">
     <button
+      type="button"
+
       v-for="item in options"
       @click="updateModelValue(item.id)"
       class="btn btn-outline"

@@ -53,6 +53,8 @@ const updateModelValue = (newValue: string) => {
       }"
     >
       <button
+        type="button"
+
         v-for="familyStatus in opinions"
         @click="updateModelValue(familyStatus.value)"
         class="btn btn-outline"

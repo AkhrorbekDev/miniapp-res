@@ -36,6 +36,8 @@ const updateModelValue = (newValue: string) => {
 <template>
   <div class="onboarding-form_second-step">
     <button
+      type="button"
+
       v-for="gender in genders"
       @click="updateModelValue(gender.value)"
       class="btn btn-outline"

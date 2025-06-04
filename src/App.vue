@@ -38,7 +38,6 @@ watchEffect(() => {
     showFormPages.value = false
     showOtherPages.value = true
   }
-  console.log('Route changed:', route.params.page)
 }, {})
 const mobileMenu = ref(null)
 onMounted(async () => {
@@ -49,8 +48,18 @@ onMounted(async () => {
     const initData = tgWebApp.initData
     const user = tgWebApp.initDataUnsafe.user
     await obtainToken({
-      initData,
-      user,
+      initData:
+        'query_id=AAFtdFMsAAAAAG10UyxxzxA-&user=%7B%22id%22%3A743666797%2C%22first_name%22%3A%22%D0%90%D1%85%D1%80%D0%BE%D1%80%D0%B1%D0%B5%D0%BA%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22Axrorbek_Nisonboyev%22%2C%22language_code%22%3A%22ru%22%2C%22is_premium%22%3Atrue%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FHLDiKRsokTnWGzxv8U2t8CBmhwPobri_-tGTwZs0SLc.svg%22%7D&auth_date=1749002810&signature=DxZamEQRZ1EnexaY1L8DPoXfDVp41bnTwjbTpXsY2xTMukgOjUxbV-5efOuS9OSL_5voX-A_72JRQQt9Lu5FCQ&hash=57b75a0e8049446eff1b65465f5c13a04bd909d05d9f56f56844012428ce16bc',
+      user: {
+        allows_write_to_pm: true,
+        first_name: 'Ахрорбек',
+        id: 743666797,
+        is_premium: true,
+        language_code: 'ru',
+        last_name: '',
+        photo_url: 'https://t.me/i/userpic/320/HLDiKRsokTnWGzxv8U2t8CBmhwPobri_-tGTwZs0SLc.svg',
+        username: 'Axrorbek_Nisonboyev',
+      },
     })
       .then((response) => {
         // tgWebApp.showAlert('Вы успешно авторизованы')
