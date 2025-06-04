@@ -233,7 +233,7 @@ const confirmPayment = () => {
           'auth', // или 'charge'
           {
             //options
-            publicId: 'pk_dbb7431f80a9ac46f07793ef02de8',
+            publicId: 'pk_3a785b53ccba9f4b250e74a358faa',
             description: 'Оплата ужина Forkies.ru',
             amount: res.event_price,
             currency: 'RUB',
@@ -241,6 +241,7 @@ const confirmPayment = () => {
             invoiceId: res.payment_id,
             skin: 'mini',
             autoClose: 3,
+            data : {success_url : "https://t.me/forkies_bot"}
           },
           {
             onSuccess: function (options) {
