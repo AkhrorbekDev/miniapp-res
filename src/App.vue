@@ -40,6 +40,7 @@ watchEffect(() => {
   }
 }, {})
 const mobileMenu = ref(null)
+
 onMounted(async () => {
   const tgWebApp = window.Telegram.WebApp
   tgWebApp.expand()
@@ -117,6 +118,7 @@ onMounted(async () => {
         <EventsPage v-if="$route.params.page === 'events-page'" />
         <ContactsPage v-if="$route.params.page === 'contacts-page'" />
         <ProfilePage v-if="$route.params.page === 'profile'" />
+
 
         <Transition name="page-drawer-top">
           <ProfileEdit v-if="$route.params.page2 === 'edit-profile'" />

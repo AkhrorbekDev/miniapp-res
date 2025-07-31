@@ -21,6 +21,7 @@ import { Pagination, Navigation } from 'swiper/modules'
 // Import Swiper styles
 import 'swiper/css'
 import notProfile from '@/assets/img/notProfile.jpg'
+import LocationSelect from '@/components/LocationSelect.vue'
 
 const events = ref([])
 
@@ -241,8 +242,15 @@ const confirmPayment = () => {
             invoiceId: res.payment_id,
             skin: 'mini',
             autoClose: 3,
-            data : {success_url : "https://t.me/forkies_bot"}
+            data: { success_url: 'https://t.me/forkies_bot' },
+            configuration: {
+              common: {
+                successRedirectUrl: 'https://t.me/forkies_bot', // адреса для перенаправления
+                failRedirectUrl: 'https://t.me/forkies_bot', // при оплате по T-Pay
+              },
+            },
           },
+
           {
             onSuccess: function (options) {
               showSuccessFrame.value = true
@@ -525,11 +533,50 @@ const showCancelResions = () => {
   showEventCancel.value = true
 }
 const store = useOnboardingStore()
-
+const showLocation = ref(false)
+const userLocation = ref(null)
+const onChangeLocation = (e) => {
+  createUserService()
+    .updateUserDetails({
+      city: e,
+    })
+    .then(async (response) => {
+      store.setUserAnket(response)
+      showLocation.value = false
+      await Promise.all([
+        eventsService()
+          .getEvents({
+            city_id: store.getUserAnket?.city,
+          })
+          .then((response) => {
+            events.value = response
+            if (events.value.length > 0) {
+              event.value = events.value[0]
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching events:', error)
+          }),
+        getUserEvent(),
+      ])
+      cancelReasons.value = store.dictionaries.cancellation_reason
+    })
+}
 onMounted(async () => {
+  if (!store.getUserAnket?.city) {
+    showLocation.value = true
+    return
+  }
+
+  userLocation.value = store.getDictionaries?.cities.find(
+    (item) => item.id === store.getUserAnket?.city,
+  )
+
   await Promise.all([
     eventsService()
-      .getEvents()
+      .getEvents({
+        city_id: store.getUserAnket?.city,
+      })
       .then((response) => {
         events.value = response
         if (events.value.length > 0) {
@@ -549,7 +596,7 @@ onMounted(async () => {
   <div class="events-page drawer">
     <div class="events-page__header">
       <img src="@/assets/img/photo.jpg" alt="" />
-      <div class="location-btn">
+      <div v-if="userLocation" class="location-btn">
         <button class="">
           <svg
             width="16"
@@ -566,7 +613,10 @@ onMounted(async () => {
               />
             </g>
           </svg>
-          <span> Москва </span>
+          <span> {{ userLocation?.name }} </span>
+        </button>
+        <button class="btn btn-outline change-location_btn" @click="showLocation = true">
+          Изменить город
         </button>
       </div>
     </div>
@@ -903,6 +953,7 @@ onMounted(async () => {
         </div>
       </div>
     </template>
+    <LocationSelect v-if="showLocation" v-model="showLocation" @on:submit="onChangeLocation" />
 
     <BaseBottomSheet :model-value="showPaymentForm" title="" @update:model-value="closePaymentForm">
       <div class="payment-form">
@@ -1259,9 +1310,9 @@ onMounted(async () => {
           <p class="modal-title">
             {{ selectedGroupItem?.name }}
           </p>
-                    <p v-if="selectedGroupItem?.оccupation" class="modal-description1">
-                      {{ selectedGroupItem?.оccupation }}
-                    </p>
+          <p v-if="selectedGroupItem?.оccupation" class="modal-description1">
+            {{ selectedGroupItem?.оccupation }}
+          </p>
           <div class="user-about-self">
             <p class="modal-description">
               {{ selectedGroupItem?.about }}
@@ -1559,16 +1610,35 @@ onMounted(async () => {
       left: 0;
       right: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding-top: 16px;
       padding-bottom: 16px;
 
+      .change-location_btn {
+        margin-top: 8px;
+        width: fit-content;
+        border: 2px solid var(--primary-light, #fcf9ea);
+        border-radius: 30px;
+        padding-top: 8px;
+        padding-right: 24px;
+        padding-bottom: 8px;
+        padding-left: 24px;
+        font-family: Manrope;
+        font-weight: 500;
+        font-size: 12px;
+        leading-trim: NONE;
+        line-height: 16px;
+        letter-spacing: -0.4px;
+      }
+
       button {
-        border: none;
+        border: 0;
         background: transparent;
         color: var(--primary-light, #fcf9ea);
         text-align: center;
+        color: var(--primary-light, #fcf9ea);
 
         /* Text Bold */
         font-family: Manrope;
@@ -2004,7 +2074,7 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
     height: 100%;
-    padding: 0 12px ;
+    padding: 0 12px;
 
     p {
       color: var(--primary-light, #fcf9ea);
