@@ -8,26 +8,32 @@ const emit = defineEmits(['update:modelValue'])
 const imagerUploading = ref(false)
 const uploadPhoto = (e) => {
   const file = e.target.files[0]
-  const formData = new FormData()
   const tgWebApp = window.Telegram.WebApp
-  formData.append('photo', file)
-  if (file) {
-    imagerUploading.value = true
-    createUserService()
-      .changeAvatar(formData)
-      .then((res) => {
-        userPhoto.value = res.photo
-        emit('update:modelValue', res.photo)
-      })
-      .catch((err) => {
-        tgWebApp.showAlert('Ошибка загрузки фото')
-        console.error(err)
-      })
-      .finally(() => {
-        imagerUploading.value = false
-      })
+
+  if (!file) {
+    tgWebApp.showAlert('Файл не выбран')
+    return
   }
+
+  const formData = new FormData()
+  formData.append('photo', file)
+  imagerUploading.value = true
+
+  createUserService()
+    .changeAvatar(formData)
+    .then((res) => {
+      userPhoto.value = res.photo
+      emit('update:modelValue', res.photo)
+    })
+    .catch((err) => {
+      tgWebApp.showAlert('Ошибка загрузки фото')
+      console.error(err)
+    })
+    .finally(() => {
+      imagerUploading.value = false
+    })
 }
+
 
 const props = defineProps({
   modelValue: {
