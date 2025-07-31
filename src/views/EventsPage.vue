@@ -596,8 +596,8 @@ onMounted(async () => {
   <div class="events-page drawer">
     <div class="events-page__header">
       <img src="@/assets/img/photo.jpg" alt="" />
-      <div v-if="userLocation" class="location-btn">
-        <button class="">
+      <div  class="location-btn">
+        <button v-if="userLocation" class="">
           <svg
             width="16"
             height="16"
