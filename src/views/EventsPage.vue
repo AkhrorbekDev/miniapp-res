@@ -542,6 +542,9 @@ const onChangeLocation = (e) => {
     })
     .then(async (response) => {
       store.setUserAnket(response)
+      userLocation.value = store.getDictionaries?.cities.find(
+        (item) => item.id === store.getUserAnket?.city,
+      )
       showLocation.value = false
       await Promise.all([
         eventsService()
