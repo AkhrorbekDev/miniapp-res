@@ -4,24 +4,25 @@ import { computed } from 'vue'
 const props = defineProps({
   modelValue: {
     type: String,
-    default: '',
+    default: ''
   },
   'onUpdate:modelValue': {
     type: Function,
-    default: () => {},
+    default: () => {
+    }
   },
   placeholder: {
     type: String,
-    default: '',
+    default: ''
   },
   value: {
     type: String,
-    default: '',
+    default: ''
   },
   label: {
     type: String,
-    default: '',
-  },
+    default: ''
+  }
 })
 const emit = defineEmits(['update:modelValue'])
 const _value = computed({
@@ -30,18 +31,20 @@ const _value = computed({
   },
   set(newValue) {
     emit('update:modelValue', newValue)
-  },
+  }
 })
 </script>
 
 <template>
   <div class="base-radio" @click="() => _value = value">
-     <p class="base-radio__label">
-       {{ label }}
-     </p>
+    <p class="base-radio__label">
+      {{ label }}
+    </p>
     <span :class="{
       checked: modelValue === value,
-    }" class="base-radio__input"></span>
+    }" class="base-radio__input">
+      <span class="base-radio__dot"></span>
+    </span>
   </div>
 </template>
 
