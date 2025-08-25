@@ -76,15 +76,12 @@
       height: 100%;
       background: var(--primary-accent, #291E1E);
       border-radius: 100%;
-      transform: scale(0);
-      transform-origin: 0 0;
       transition: transform 0.2s ease-in-out;
       visibility: hidden;
     }
 
     &.checked .base-radio__dot {
       visibility: visible;
-      transform: scale(1);
     }
   }
 }
